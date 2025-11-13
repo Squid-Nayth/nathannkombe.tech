@@ -95,7 +95,12 @@ body {
   transition: transform .18s ease, filter .12s ease;
 }
 .contact-cta img{filter:invert(1);width:20px;height:20px;display:block}
-.contact-cta:hover{transform:translateY(-3px);filter:brightness(1.02)}
+.contact-cta:hover{
+  /* more prominent lift + subtle scale for the primary hero CTA */
+  transform:translateY(-6px) scale(1.02);
+  filter:brightness(1.06) saturate(1.02);
+  box-shadow:0 14px 34px rgba(0,122,255,0.18);
+}
 .contact-cta:active{transform:translateY(-1px)}
 .contact-cta:focus{outline:2px solid rgba(255,255,255,0.08);outline-offset:3px}
 
@@ -421,7 +426,11 @@ body.overlay-active footer{
   transition: transform .16s ease, filter .12s ease;
 }
 .project-cta img{width:16px;height:16px;display:block;filter:invert(1);}
-.project-cta:hover{transform:translateY(-3px);filter:brightness(1.02)}
+.project-cta:hover{
+  /* subtler lift for project buttons (kept for backwards compatibility) */
+  transform:translateY(-1px);
+  filter:brightness(1.01);
+}
 .project-cta:active{transform:translateY(-1px)}
 .project-cta:focus{outline:2px solid rgba(255,255,255,0.06);outline-offset:3px}
 
@@ -457,7 +466,23 @@ body.overlay-active footer{
 .contact-form .contact-form-actions{margin-top:1rem}
 .btn-send{background:#10b981;color:#021;border:none;padding:0.8rem 1.25rem;border-radius:10px;font-weight:700;box-shadow:0 8px 24px rgba(16,185,129,0.12);cursor:pointer;display:inline-flex;align-items:center;gap:0.6rem}
 .btn-send img{width:18px;height:18px;display:block;filter:invert(1) drop-shadow(0 6px 18px rgba(16,185,129,0.12))}
-.btn-send:hover{transform:translateY(-2px);filter:brightness(1.02)}
+.btn-send:hover{
+  /* legacy: specific rule kept but will be overridden by the general rule below */
+  transform:translateY(-1px);
+  filter:brightness(1.02);
+}
+
+/* Apply the project-button hover behavior to all buttons/links except the
+   primary hero `.contact-cta`. This keeps the Contact CTA visually unique. */
+a:not(.contact-cta):hover,
+button:not(.contact-cta):hover,
+.project-cta:hover,
+.download-cv:hover,
+.github-cta:hover,
+.btn:not(.contact-cta):hover {
+  transform:translateY(-1px);
+  filter:brightness(1.01);
+}
 .btn-send:active{transform:translateY(-1px)}
 
 .contact-confirmation{margin-top:1rem;padding:0.9rem 1rem;background:linear-gradient(180deg, rgba(16,185,129,0.12), rgba(16,185,129,0.06));border:1px solid rgba(16,185,129,0.14);color:#c7f6e5;border-radius:8px;font-weight:700;display:inline-block}
@@ -752,4 +777,19 @@ body.overlay-active footer{
   .btn {
     transition: none;
   }
+}
+
+/* ------------------------------------------------------------------
+   Unified hover: apply the Contact CTA hover animation to all buttons
+   and anchors so they share the same pronounced lift/scale/halo.
+   This intentionally makes the hover visual consistent across the site.
+   ------------------------------------------------------------------ */
+a, button, .btn, .project-cta, .download-cv, .github-cta, .btn-send {
+  transition: transform .18s ease, filter .12s ease, box-shadow .18s ease;
+}
+
+a:hover, button:hover, .btn:hover, .project-cta:hover, .download-cv:hover, .github-cta:hover, .btn-send:hover {
+  transform: translateY(-6px) scale(1.02);
+  filter: brightness(1.06) saturate(1.02);
+  box-shadow: 0 14px 34px rgba(0,122,255,0.18);
 }
