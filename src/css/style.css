@@ -62,6 +62,52 @@ body {
   pointer-events:none;
 }
 
+/* Contact CTA inside hero (rounded blue panel with comment icon + halo) */
+.contact-cta{
+  display:inline-flex;
+  align-items:center;
+  gap:0.6rem;
+  margin:1.25rem auto 0;
+  padding:0.75rem 1.15rem; /* same as .github-cta */
+  background: linear-gradient(180deg,#007aff 0%, #0062d6 100%); /* match .download-cv */
+  color:#fff;
+  border-radius:10px; /* same shape as .github-cta */
+  font-weight:700;
+  font-size:1rem;
+  text-decoration:none;
+  box-shadow:0 8px 22px rgba(0,122,255,0.12); /* blue variant of .github-cta shadow */
+  position:relative;
+  z-index:4; /* above hero-shadow */
+  border:1px solid rgba(255,255,255,0.06);
+  transition: transform .18s ease, filter .12s ease;
+}
+.contact-cta img{filter:invert(1);width:20px;height:20px;display:block}
+.contact-cta:hover{transform:translateY(-3px);filter:brightness(1.02)}
+.contact-cta:active{transform:translateY(-1px)}
+.contact-cta:focus{outline:2px solid rgba(255,255,255,0.08);outline-offset:3px}
+
+/* soft radial halo behind the button to mimic the supplied lighting */
+.contact-cta::before{
+  content:"";
+  position:absolute;
+  z-index:-1;
+  left:50%;
+  top:50%;
+  transform:translate(-50%,-50%);
+  width:220px;
+  height:64px;
+  background:radial-gradient(circle at center, rgba(0,122,255,0.26) 0%, rgba(0,122,255,0.12) 22%, rgba(0,122,255,0.04) 45%, transparent 70%);
+  filter:blur(16px) saturate(1.05);
+  border-radius:10px; /* rounded halo to match button */
+  pointer-events:none;
+  opacity:0.95;
+}
+
+@media (max-width:720px){
+  .contact-cta{font-size:0.95rem;padding:0.55rem 0.9rem}
+  .contact-cta::before{width:180px;height:56px}
+}
+
 /* Face ID overlay styles */
 .faceid-overlay{
   position:fixed;
@@ -276,9 +322,103 @@ body.overlay-active footer{
 .experience-location{color:#9ca3af;margin-top:6px}
 .experience-desc{color:#d1d5db;margin-top:8px}
 
+/* ---------- Contributions (GitHub calendar) ---------- */
+.contributions-section{padding:3.5rem 1rem;background:transparent}
+.contributions-inner{max-width:1100px;margin:0 auto;text-align:center}
+.contributions-inner h2{font-size:2rem;margin-bottom:6px;display:inline-flex;align-items:center;gap:0.8rem}
+.contrib-sub{color:#9ca3af;margin-bottom:1.25rem}
+.github-calendar-card{background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));padding:1.6rem;border-radius:12px;box-shadow:0 10px 30px rgba(0,0,0,0.6);border:1px solid rgba(255,255,255,0.03);display:flex;flex-direction:column;align-items:center;gap:1rem}
+.github-calendar-card .calendar{width:100%;max-width:1000px}
+.contrib-legend{color:#9ca3af;margin-top:6px;font-weight:500}
+.github-cta{display:inline-flex;align-items:center;gap:0.6rem;margin-top:0.9rem;padding:0.75rem 1.15rem;background:#10b981;color:#021; border-radius:10px;text-decoration:none;font-weight:700;box-shadow:0 8px 22px rgba(16,185,129,0.12)}
+.github-cta img{filter:invert(1);width:20px;height:20px}
+.github-cta:hover{filter:brightness(0.95)}
+
+@media (max-width:720px){
+  .github-calendar-card{padding:1rem}
+  .contributions-inner h2{font-size:1.5rem}
+}
+
+/* Additional polish for GitHub calendar to match site UX */
+.github-calendar-card{background:linear-gradient(180deg,#0b0b0b 0%, #070707 100%);border:1px solid rgba(255,255,255,0.04);box-shadow:0 18px 50px rgba(2,6,23,0.7);padding:2rem}
+.contributions-inner h2{color:#e6eef2}
+.contrib-sub{color:#9aa3ab}
+.github-calendar-card .calendar{background:transparent;padding:0;border-radius:8px;width:100%}
+
+/* Override github-calendar cell colors to use site green palette */
+.github-calendar-card .calendar rect[data-level="0"]{fill:rgba(255,255,255,0.03) !important}
+.github-calendar-card .calendar rect[data-level="1"]{fill:#064e3b !important}
+.github-calendar-card .calendar rect[data-level="2"]{fill:#0f9d58 !important}
+.github-calendar-card .calendar rect[data-level="3"]{fill:#16a34a !important}
+.github-calendar-card .calendar rect[data-level="4"]{fill:#34d399 !important}
+
+/* subtle border + rounded squares for SVG cells */
+.github-calendar-card .calendar rect{rx:2; ry:2; stroke:rgba(0,0,0,0.35); stroke-width:0.6px}
+
+/* Legend: present small boxes matching colors */
+.github-calendar-card .contrib-legend{display:flex;align-items:center;gap:0.75rem;color:#9ca3af}
+.github-calendar-card .contrib-legend .legend-swatch{width:12px;height:12px;border-radius:3px;display:inline-block}
+.github-calendar-card .contrib-legend .sw-0{background:rgba(255,255,255,0.03)}
+.github-calendar-card .contrib-legend .sw-1{background:#064e3b}
+.github-calendar-card .contrib-legend .sw-2{background:#0f9d58}
+.github-calendar-card .contrib-legend .sw-3{background:#16a34a}
+.github-calendar-card .contrib-legend .sw-4{background:#34d399}
+
+/* make the calendar responsive and centered */
+.github-calendar-card .calendar svg{width:100%;height:auto}
+
+/* small accessibility: pause on focus inside calendar */
+.github-calendar-card .calendar:focus-within svg rect{outline:none}
+
 @media (max-width:880px){
   .experience-item{flex-direction:row;gap:0.75rem}
   .experience-row{flex-direction:column;align-items:flex-start}
+}
+
+/* ---------- Projets ---------- */
+.projects-section{padding:3.5rem 1rem;background:transparent}
+.projects-inner{max-width:1100px;margin:0 auto}
+.projects-inner h2{font-size:2.2rem;margin-bottom:1rem;font-weight:800;color:#fff;display:inline-flex;align-items:center;gap:0.75rem}
+.projects-h2-icon{width:20px;height:20px;display:inline-block;filter:invert(1) brightness(1)}
+.projects-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:1.25rem;margin-top:1rem}
+.project-card{background:linear-gradient(180deg, #0b0b0b 0%, #070707 100%);border:1px solid rgba(255,255,255,0.04);border-radius:12px;box-shadow:0 12px 30px rgba(2,6,23,0.6);display:flex;gap:1rem;overflow:hidden;align-items:stretch}
+.project-media{flex:0 0 48%;min-width:160px;height:220px;overflow:hidden}
+.project-media img{width:100%;height:100%;object-fit:cover;display:block}
+.project-body{flex:1 1 52%;min-width:0;padding:1.25rem;display:flex;flex-direction:column;gap:0.6rem}
+.project-title{font-size:1.1rem;font-weight:800;color:#fff;word-break:break-word}
+.project-desc{color:#d1d5db;overflow-wrap:break-word}
+.project-tags{display:flex;gap:0.5rem;flex-wrap:wrap;margin-top:6px}
+.project-tags span{background:rgba(255,255,255,0.03);padding:0.25rem 0.5rem;border-radius:6px;font-size:0.85rem;color:#9ca3af}
+.project-links{margin-top:auto;display:flex;gap:0.6rem}
+.project-links .btn{padding:0.55rem 0.9rem}
+
+/* Project CTA style inspired by attachment (small dark rounded button with icon left) */
+.project-cta{
+  display:inline-flex;
+  align-items:center;
+  gap:0.6rem;
+  padding:0.55rem 0.9rem;
+  background: rgba(12,14,16,0.6);
+  border:1px solid rgba(255,255,255,0.06);
+  color: #fff;
+  text-decoration:none;
+  border-radius:8px;
+  font-weight:700;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.02), 0 8px 22px rgba(2,6,23,0.6);
+  transition: transform .16s ease, filter .12s ease;
+}
+.project-cta img{width:16px;height:16px;display:block;filter:invert(1);}
+.project-cta:hover{transform:translateY(-3px);filter:brightness(1.02)}
+.project-cta:active{transform:translateY(-1px)}
+.project-cta:focus{outline:2px solid rgba(255,255,255,0.06);outline-offset:3px}
+
+/* Slightly different filled style for primary project action if needed */
+.project-cta.primary{background:linear-gradient(90deg,#06b6d4,#7c3aed);color:#fff;border:none}
+
+@media (max-width:880px){
+  .projects-grid{grid-template-columns:1fr;}
+  .project-card{flex-direction:column}
+  .project-media{width:100%;height:200px}
 }
 
 /* image styling for intro */

@@ -6,6 +6,8 @@
     <title>Nathan Michel | Développeur Full Stack | MERN et Java Full Stack</title>
     <script src="https://unpkg.com/@primer/octicons@19.8.0/build/build.js"></script>
     <link href="./src/css/style.css" rel="stylesheet">
+    <!-- GitHub calendar responsive CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/github-calendar@latest/dist/github-calendar-responsive.css">
   </head>
   <body>
     <!-- Face ID intro overlay -->
@@ -31,7 +33,11 @@
       <div class="hero-inner">
         <div class="hero-name">Nathan Michel</div>
         <h1 class="hero-heading">Je crée des sites web<br>et des applications.</h1>
-        <div class="hero-shadow" aria-hidden="true"></div>
+          <a class="contact-cta" href="#contact">
+            <img src="public/icons/comment-16.svg" alt="Comment icon" aria-hidden="true">
+            Contactez-moi
+          </a>
+          <div class="hero-shadow" aria-hidden="true"></div>
       </div>
     </main>
 
@@ -136,10 +142,86 @@
       </div>
     </section>
 
+    <!-- Projets section -->
+    <section class="projects-section" aria-labelledby="projects-heading">
+      <div class="projects-inner">
+        <h2 id="projects-heading"><img class="projects-h2-icon" src="public/icons/repo-16.svg" alt="" aria-hidden="true"> Projets</h2>
+
+        <div class="projects-grid">
+          <!-- Project 1: Screenfix -->
+          <article class="project-card">
+            <div class="project-media">
+              <img src="public/images/Capture d’écran 2025-11-13 à 07.23.44.png" alt="Screenfix - site vitrine">
+            </div>
+            <div class="project-body">
+              <h3 class="project-title">Screenfix</h3>
+              <p class="project-desc">Site web vitrine et prise de rendez-vous via formulaire.</p>
+              <div class="project-tags">
+                <span>HTML</span><span>CSS</span><span>Formulaire</span>
+              </div>
+              <div class="project-links">
+                <a class="project-cta" href="#">
+                  <img src="public/icons/rss-16.svg" alt="Démo" aria-hidden="true">
+                  Démo
+                </a>
+                <a class="project-cta" href="#">
+                  <img src="public/icons/mark-github-16.svg" alt="GitHub" aria-hidden="true">
+                  GitHub
+                </a>
+              </div>
+            </div>
+          </article>
+
+          <!-- Project 2: SanctuaryOS -->
+          <article class="project-card">
+            <div class="project-media">
+              <img src="public/images/Capture d’écran 2025-11-13 à 07.24.48.png" alt="SanctuaryOS - concept preview">
+            </div>
+            <div class="project-body">
+              <h3 class="project-title">SanctuaryOS</h3>
+              <p class="project-desc">Projet open-source visant à reproduire une interface de console en veille, inspiré par Dusqk (design & bande-son).</p>
+              <div class="project-tags">
+                <span>Open source</span><span>UI</span><span>Design</span>
+              </div>
+              <div class="project-links">
+                <a class="project-cta" href="#">
+                  <img src="public/icons/rss-16.svg" alt="Démo" aria-hidden="true">
+                  Démo
+                </a>
+                <a class="project-cta" href="#">
+                  <img src="public/icons/mark-github-16.svg" alt="GitHub" aria-hidden="true">
+                  GitHub
+                </a>
+              </div>
+            </div>
+          </article>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- Contributions GitHub section -->
+    <section class="contributions-section" aria-labelledby="contrib-heading">
+      <div class="contributions-inner">
+        <h2 id="contrib-heading"><img class="experience-h2-icon" src="public/icons/git-commit-16.svg" alt="GitHub" aria-hidden="true"> Contributions GitHub</h2>
+        <p class="contrib-sub">Mon parcours de programmation visualisé</p>
+
+        <div class="github-calendar-card">
+          <div class="calendar">Loading the data just for you.</div>
+
+          <div class="contrib-legend">Contributions en 2025</div>
+
+          <a class="btn github-cta" href="https://github.com/Squid-Nayth" target="_blank" rel="noopener noreferrer">
+            <img src="public/images/github.png" alt="GitHub" style="width:20px;height:20px;margin-right:8px;filter:invert(1);"> Voir le profil GitHub
+          </a>
+        </div>
+      </div>
+    </section>
+
     <!-- Carousel sections: Outils & Compétences -->
     <section class="carousel-section" aria-labelledby="tools-heading">
       <div class="carousel-inner">
-        <h2 id="tools-heading"><img class="experience-h2-icon" src="public/icons/organization-16.svg" alt="" aria-hidden="true"> Outils de développement</h2>
+        <h2 id="tools-heading"><img class="experience-h2-icon" src="public/icons/package-16.svg" alt="" aria-hidden="true"> Outils de développement</h2>
 
   <div class="carousel-slider tools-slider" aria-hidden="false">
           <div class="slide-track">
@@ -165,7 +247,7 @@
 
     <section class="carousel-section" aria-labelledby="skills-heading">
       <div class="carousel-inner">
-        <h2 id="skills-heading"><img class="experience-h2-icon" src="public/icons/organization-16.svg" alt="" aria-hidden="true"> Compétences</h2>
+        <h2 id="skills-heading"><img class="experience-h2-icon" src="public/icons/terminal-16.svg" alt="" aria-hidden="true"> Compétences</h2>
 
   <div class="carousel-slider skills-slider" aria-hidden="false">
           <div class="slide-track">
@@ -218,5 +300,15 @@
       </footer>
     </main>
     <script src="src/js/script.js" defer></script>
+    <!-- GitHub calendar script -->
+    <script src="https://unpkg.com/github-calendar@latest/dist/github-calendar.min.js"></script>
+    <script>
+      document.addEventListener('DOMContentLoaded', function () {
+        // initialize the calendar for the user Squid-Nayth
+        if (typeof GitHubCalendar === 'function') {
+          GitHubCalendar('.calendar', 'Squid-Nayth', { responsive: true });
+        }
+      });
+    </script>
   </body>
 </html>
