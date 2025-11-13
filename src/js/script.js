@@ -38,3 +38,43 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 });
+
+/* Face ID intro: show overlay at load, then wait for user's hover to complete animation
+   Behavior: overlay visible on load (page blurred). When user mouseenters the face,
+   add 'active' and after 1700ms add 'completed' (then hide overlay). On mouseleave,
+   cancel pending timer and remove classes (animation won't complete).
+*/
+document.addEventListener('DOMContentLoaded', () => {
+  const overlay = document.querySelector('.faceid-overlay');
+  const faceId = document.querySelector('.face-id-wrapper');
+  if (!overlay || !faceId) return;
+
+  // show overlay and blur background until user completes the interaction
+  overlay.classList.remove('hidden');
+  document.body.classList.add('overlay-active');
+
+  let timer = null;
+  const completeDelay = 1700; // ms
+  const dashDuration = 600; // ms (tick animation)
+
+  faceId.addEventListener('mouseenter', function() {
+    // start the activation
+    this.classList.add('active');
+    // schedule completed state if user stays
+    timer = setTimeout(() => {
+      this.classList.add('completed');
+      // once completed, hide overlay after dash animation finishes
+      setTimeout(() => {
+        overlay.classList.add('hidden');
+        document.body.classList.remove('overlay-active');
+      }, dashDuration + 80);
+    }, completeDelay);
+  });
+
+  faceId.addEventListener('mouseleave', function() {
+    // cancel completion if user leaves early
+    if (timer) { clearTimeout(timer); timer = null; }
+    this.classList.remove('active');
+    this.classList.remove('completed');
+  });
+});
