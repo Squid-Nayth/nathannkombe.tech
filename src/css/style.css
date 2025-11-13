@@ -442,7 +442,8 @@ body.overlay-active footer{
 .contact-form textarea{min-height:180px}
 .contact-form input::placeholder, .contact-form textarea::placeholder{color:rgba(230,238,242,0.35);font-family:inherit}
 .contact-form .contact-form-actions{margin-top:1rem}
-.btn-send{background:#10b981;color:#021;border:none;padding:0.8rem 1.25rem;border-radius:10px;font-weight:700;box-shadow:0 8px 24px rgba(16,185,129,0.12);cursor:pointer}
+.btn-send{background:#10b981;color:#021;border:none;padding:0.8rem 1.25rem;border-radius:10px;font-weight:700;box-shadow:0 8px 24px rgba(16,185,129,0.12);cursor:pointer;display:inline-flex;align-items:center;gap:0.6rem}
+.btn-send img{width:18px;height:18px;display:block;filter:invert(1) drop-shadow(0 6px 18px rgba(16,185,129,0.12))}
 .btn-send:hover{transform:translateY(-2px);filter:brightness(1.02)}
 .btn-send:active{transform:translateY(-1px)}
 
