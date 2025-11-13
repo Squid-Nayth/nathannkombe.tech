@@ -49,6 +49,19 @@ body {
   text-wrap:balance;
   word-break:break-word;
 }
+
+/* Hero popper words */
+.hero-heading .hero-word{display:inline-block;opacity:0;transform:translateY(18px) scale(.98);transition:transform .60s cubic-bezier(.2,.9,.25,1), opacity .50s ease;will-change:transform,opacity}
+.hero-heading .hero-word.is-visible{opacity:1;transform:translateY(0) scale(1)}
+
+/* Contact CTA entrance when hero finishes */
+.contact-cta{opacity:0;transform:translateY(8px);transition:opacity .4s ease, transform .36s cubic-bezier(.2,.9,.25,1)}
+.contact-cta.is-visible{opacity:1;transform:none}
+
+@media (prefers-reduced-motion: reduce){
+  .hero-heading .hero-word{transition:none;opacity:1;transform:none}
+  .contact-cta{transition:none;opacity:1;transform:none}
+}
 .hero-shadow{
   position:absolute;
   left:50%;
@@ -238,7 +251,7 @@ body.overlay-active footer{
 }
 
 /* ---------- Carousels (Outils & Compétences) ---------- */
-:root{--carousel-slide-w:140px;--carousel-slide-h:96px;--carousel-visible-w:960px;--carousel-speed:40s}
+:root{--carousel-slide-w:140px;--carousel-slide-h:96px;--carousel-visible-w:960px;--carousel-speed:52s}
 .carousel-section{padding:2.5rem 1rem;background:transparent}
 .carousel-inner{max-width:1100px;margin:0 auto}
 .carousel-inner h2{font-size:1.5rem;margin-bottom:.75rem;font-weight:800;color:#fff;display:inline-flex;align-items:center;gap:.6rem}
@@ -709,7 +722,7 @@ body.overlay-active footer{
   }
 
 /* Reveal-on-scroll utility */
-.reveal-on-scroll{opacity:0;transform:translateY(18px);transition:opacity .64s cubic-bezier(.2,.9,.2,1), transform .64s cubic-bezier(.2,.9,.2,1);will-change:opacity,transform}
+.reveal-on-scroll{opacity:0;transform:translateY(18px);transition:opacity .90s cubic-bezier(.2,.9,.2,1), transform .90s cubic-bezier(.2,.9,.2,1);will-change:opacity,transform}
 .reveal-on-scroll.is-visible{opacity:1;transform:none}
 
 /* Optional stagger support via data-delay (seconds) */
@@ -718,6 +731,13 @@ body.overlay-active footer{
 @media (prefers-reduced-motion: reduce){
   .reveal-on-scroll{transition:none;opacity:1;transform:none}
 }
+
+/* When the face-id overlay is active, keep major CSS animations paused so the
+   site doesn't animate before the user completes the intro interaction. The
+   JS will toggle the `animations-paused` class on the root element. */
+.animations-paused .slide-track { animation-play-state: paused !important }
+.animations-paused .slide-track * { animation-play-state: paused !important }
+.animations-paused .typewriter-name { animation-play-state: paused !important }
 
 /* Typewriter effect for profile name */
 .typewriter-name{display:inline-block;white-space:nowrap;overflow:hidden;border-right:.12em solid currentColor;padding-right:.1ch;--chars:13ch;width:0ch;animation:typing 2s steps(13,end) forwards, blink-caret .7s step-end infinite}

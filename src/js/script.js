@@ -1,22 +1,47 @@
-// Typewriter + toggle handler (dynamic)
+// Consolidated script: gate site animations behind the Face ID flow so no
+// animations (carousels, hero popper, typewriter, reveal-on-scroll) start
+// until the face-id interaction completes.
+
+// Add a flag to pause CSS animations site-wide. This runs as the script is
+// parsed (defer scripts run before DOMContentLoaded) so CSS rules can target
+// the presence of this class and pause animations.
+document.documentElement.classList.add('animations-paused');
+
+// Global speed factor for non-button animations. Increase to slow animations
+// slightly. Buttons keep their original timings.
+const __ANIM_SPEED_FACTOR = 1.3;
+
+function runAfterFaceID(fn) {
+  if (!document.documentElement.classList.contains('animations-paused')) {
+    fn();
+  } else {
+    document.addEventListener('faceid:done', fn, { once: true });
+  }
+}
+
 document.addEventListener('DOMContentLoaded', () => {
-  // Typewriter: set --chars and animation duration based on text length
+  // Typewriter: compute and set --chars now; only start the CSS animation after FaceID
   const el = document.querySelector('.typewriter-name');
   if (el) {
     const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     const text = el.textContent.trim();
     const len = Math.max(1, text.length);
     el.style.setProperty('--chars', `${len}ch`);
+
     if (prefersReduced) {
       el.style.width = `${len}ch`;
       el.style.borderRight = 'transparent';
     } else {
-      const duration = Math.min(6, Math.max(1.2, len * 0.12));
-      el.style.animation = `typing ${duration}s steps(${len}, end) forwards, blink-caret .7s step-end infinite`;
+      // start animation only after face-id finishes
+      runAfterFaceID(() => {
+        const base = Math.min(6, Math.max(1.2, len * 0.12));
+        const duration = Math.min(6 * __ANIM_SPEED_FACTOR, Math.max(1.2 * __ANIM_SPEED_FACTOR, base * __ANIM_SPEED_FACTOR));
+        el.style.animation = `typing ${duration}s steps(${len}, end) forwards, blink-caret ${0.7 * __ANIM_SPEED_FACTOR}s step-end infinite`;
+      });
     }
   }
 
-  // Toggle: persist state in localStorage and initialize UI
+  // Toggle: persist state in localStorage and initialize UI (no animation)
   const toggle = document.getElementById('emailToggle');
   const KEY = 'email.enabled';
   if (toggle) {
@@ -37,8 +62,6 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     });
   }
-
-  // Video logic removed — intro uses a static image instead
 });
 
 // Contact form handling: show a confirmation message on submit (client-side)
@@ -105,7 +128,6 @@ document.addEventListener('DOMContentLoaded', () => {
   faceId.addEventListener('mouseenter', function() {
     // start the activation
     this.classList.add('active');
-    // audio logic intentionally removed
     // schedule completed state if user stays
     timer = setTimeout(() => {
       this.classList.add('completed');
@@ -122,6 +144,14 @@ document.addEventListener('DOMContentLoaded', () => {
             overlay.classList.remove('fade-out');
             document.body.classList.remove('overlay-active');
             overlay.removeEventListener('transitionend', onFadeEnd);
+
+            // resume animations site-wide and notify waiting code
+            try {
+              document.documentElement.classList.remove('animations-paused');
+              document.dispatchEvent(new CustomEvent('faceid:done'));
+            } catch (err) {
+              // swallow any error — non-critical
+            }
           }
         };
         overlay.addEventListener('transitionend', onFadeEnd);
@@ -137,11 +167,11 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 });
 
-/* Reveal-on-scroll: add .reveal-on-scroll to main blocks and observe them */
-document.addEventListener('DOMContentLoaded', () => {
+/* Reveal-on-scroll: prepare elements now, but start observing only after FaceID
+   completes so the entrance animations won't run until the overlay is done. */
+function initRevealOnScroll() {
   if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
 
-  // choose selectors to reveal (sections and some key components)
   const selectors = [
     'section',
     '.project-card',
@@ -155,14 +185,10 @@ document.addEventListener('DOMContentLoaded', () => {
   ].join(', ');
 
   const nodes = Array.from(document.querySelectorAll(selectors));
-
-  // attach class so CSS hides them initially
   nodes.forEach((n, i) => {
-    // don't re-add if already present
     if (!n.classList.contains('reveal-on-scroll')) {
       n.classList.add('reveal-on-scroll');
-      // small stagger for visible sequence
-      const delay = Math.min(0.18 * (i % 6), 0.6);
+      const delay = Math.min(0.18 * (i % 6) * __ANIM_SPEED_FACTOR, 0.6 * __ANIM_SPEED_FACTOR);
       n.style.setProperty('--reveal-delay', `${delay}s`);
       n.setAttribute('data-delay', String(delay));
     }
@@ -172,11 +198,67 @@ document.addEventListener('DOMContentLoaded', () => {
     entries.forEach(entry => {
       if (entry.isIntersecting) {
         entry.target.classList.add('is-visible');
-        // if we want to reveal only once
         observer.unobserve(entry.target);
       }
     });
   }, { root: null, rootMargin: '0px 0px -8% 0px', threshold: 0.12 });
 
   nodes.forEach(n => observer.observe(n));
+}
+
+// Hero word popper: only run after FaceID
+function initHeroPopper() {
+  const heading = document.querySelector('.hero-heading');
+  const cta = document.querySelector('.contact-cta');
+  if (!heading) return;
+
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    if (cta) cta.classList.add('is-visible');
+    return;
+  }
+
+  const originalNodes = Array.from(heading.childNodes);
+  const wordSpans = [];
+  heading.innerHTML = '';
+
+  originalNodes.forEach(node => {
+    if (node.nodeType === Node.TEXT_NODE) {
+      const parts = node.textContent.split(/(\s+)/);
+      parts.forEach(p => {
+        if (!p) return;
+        if (/^\s+$/.test(p)) {
+          heading.appendChild(document.createTextNode(p));
+        } else {
+          const span = document.createElement('span');
+          span.className = 'hero-word';
+          span.textContent = p;
+          heading.appendChild(span);
+          wordSpans.push(span);
+        }
+      });
+    } else if (node.nodeType === Node.ELEMENT_NODE && node.tagName === 'BR') {
+      heading.appendChild(document.createElement('br'));
+    } else {
+      heading.appendChild(node.cloneNode(true));
+    }
+  });
+
+  const perWordMs = Math.round(110 * __ANIM_SPEED_FACTOR);
+  wordSpans.forEach((ws, i) => {
+    setTimeout(() => { ws.classList.add('is-visible'); }, i * perWordMs);
+  });
+
+  if (cta && wordSpans.length) {
+  const total = wordSpans.length * perWordMs + Math.round(220 * __ANIM_SPEED_FACTOR);
+    setTimeout(() => { cta.classList.add('is-visible'); }, total);
+  } else if (cta) {
+    cta.classList.add('is-visible');
+  }
+}
+
+// Start reveal and hero popper after FaceID or immediately if already done
+runAfterFaceID(() => {
+  initRevealOnScroll();
+  initHeroPopper();
 });
+
