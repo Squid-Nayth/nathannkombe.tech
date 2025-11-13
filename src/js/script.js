@@ -37,6 +37,8 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     });
   }
+
+  // Video logic removed — intro uses a static image instead
 });
 
 /* Face ID intro: show overlay at load, then wait for user's hover to complete animation
@@ -60,13 +62,26 @@ document.addEventListener('DOMContentLoaded', () => {
   faceId.addEventListener('mouseenter', function() {
     // start the activation
     this.classList.add('active');
+    // audio logic intentionally removed
     // schedule completed state if user stays
     timer = setTimeout(() => {
       this.classList.add('completed');
-      // once completed, hide overlay after dash animation finishes
+
+      // once completed, start overlay fade-out (iOS-like) then hide after transition
       setTimeout(() => {
-        overlay.classList.add('hidden');
-        document.body.classList.remove('overlay-active');
+        // start fade-out animation
+        overlay.classList.add('fade-out');
+
+        const onFadeEnd = (e) => {
+          // wait for opacity transition to finish
+          if (e.propertyName === 'opacity') {
+            overlay.classList.add('hidden');
+            overlay.classList.remove('fade-out');
+            document.body.classList.remove('overlay-active');
+            overlay.removeEventListener('transitionend', onFadeEnd);
+          }
+        };
+        overlay.addEventListener('transitionend', onFadeEnd);
       }, dashDuration + 80);
     }, completeDelay);
   });

@@ -74,7 +74,15 @@ body {
   background: rgba(0,0,0,0.64);
   backdrop-filter: blur(2px);
 }
-.faceid-overlay.hidden{opacity:0;visibility:hidden;pointer-events:none;transition:opacity .35s ease, visibility .35s ease}
+.faceid-overlay.hidden{opacity:0;visibility:hidden;pointer-events:none}
+
+/* iOS-like fade-out: slightly scale + fade the overlay and soften blur */
+.faceid-overlay.fade-out{
+  opacity: 0;
+  transform: scale(1.06);
+  transition: opacity .45s cubic-bezier(.2,.8,.2,1), transform .45s cubic-bezier(.2,.8,.2,1), backdrop-filter .45s ease;
+  backdrop-filter: blur(1px);
+}
 .canvas{display:flex;height:100vh;width:100%;align-items:center;justify-content:center;background:transparent}
 .face-id-wrapper{width:100px;height:100px;margin:auto;position:relative}
 .face-id-wrapper svg{position:absolute;fill:transparent;stroke:rgba(255,255,255,0.92);width:100%;height:100%;transition:stroke .25s ease, opacity .25s ease}
@@ -110,6 +118,105 @@ body.overlay-active footer{
   .face-id-wrapper{width:80px;height:80px}
   .face-id-wrapper .circle{width:80px;height:80px}
 }
+
+/* Intro summary (left text, right video) */
+.intro-summary{padding:4rem 1rem;background:#050505;}
+.intro-inner{max-width:1200px;margin:0 auto;display:flex;gap:2.5rem;align-items:center}
+.intro-left{flex:1;min-width:260px}
+.intro-right{flex:1;display:flex;align-items:center;justify-content:center;position:relative}
+.intro-left h2{font-size:clamp(1.4rem,3.5vw,2.4rem);color:#fff;margin-bottom:1rem;font-weight:800}
+.intro-copy{color:#d1d5db;font-size:1.05rem;line-height:1.45;margin-bottom:.8rem}
+.intro-image{
+  /* Do not crop: keep full image visible and scale down for sharpness */
+  display:block;
+  width:auto; /* allow wrapper to shrink-wrap the image so the button centers */
+  max-width:200px; /* keep existing maximum width */
+  height:auto;
+  object-fit:contain; /* ensure no cropping */
+  border-radius:0;
+  box-shadow:none;
+  background:transparent;
+  image-rendering: auto;
+}
+
+/* Wrapper that creates a blurred, color-matching background using the same image
+   The ::before uses the image as a background, is blurred, slightly scaled and saturated
+   so the halo picks up the dominant colors from the image. The real image sits above it. */
+.intro-right{position:relative;display:flex;align-items:center;justify-content:center}
+.intro-image-wrap{position:relative;display:inline-flex;flex-direction:column;align-items:center;gap:.5rem;overflow:visible}
+.intro-image-wrap::before{
+  content:"";
+  position:absolute;
+  z-index:0;
+  left:50%;top:50%;
+  transform:translate(-50%,-50%) scale(1.06);
+  width:calc(100% + 48px);
+  height:calc(100% + 48px);
+  /* no rounded rect so there is no visible frame */
+  background-image: url('../../public/images/nathan%20memoji.png');
+  background-size: cover;
+  background-position: center;
+  filter: blur(18px) saturate(1.5) brightness(0.66);
+  opacity:0.82; /* lower so UI elements above it contrast better */
+  pointer-events:none;
+}
+.intro-image{position:relative;z-index:2;border-radius:0;box-shadow:none}
+
+/* Download CV button under image, Apple-like blue */
+.download-cv{
+  --btn-shift: -4px; /* tweak this value to adjust horizontal centering */
+  display:inline-flex;
+  align-items:center;
+  gap:0.5rem;
+  text-decoration:none;
+  color:#fff;
+  background: linear-gradient(180deg,#007aff 0%, #0062d6 100%);
+  padding:0.45rem 0.9rem;
+  border-radius:10px;
+  font-weight:600;
+  font-size:0.95rem;
+  box-shadow: 0 10px 28px rgba(0,122,255,0.22), 0 1px 0 rgba(255,255,255,0.02) inset;
+  position:relative;
+  z-index:3; /* ensure it sits above the blurred pseudo-element */
+  border:1px solid rgba(255,255,255,0.06);
+  transform: translateX(var(--btn-shift));
+}
+.download-cv:hover{filter:brightness(.98);transform:translateX(var(--btn-shift)) translateY(-1px)}
+.download-cv:active{transform:translateX(var(--btn-shift)) translateY(0)}
+.download-icon{width:16px;height:16px;display:inline-block;filter:invert(1) brightness(1)}
+
+@media (max-width:880px){
+  .intro-inner{flex-direction:column}
+  .intro-right{order:2}
+  .intro-video{height:220px;max-width:100%}
+}
+
+/* Formation / Education section styles */
+.formation-section{padding:3.5rem 1rem;background:transparent}
+.formation-inner{max-width:1100px;margin:0 auto}
+.formation-inner h2{font-size:2.2rem;margin-bottom:1.25rem;font-weight:800;color:#fff;display:inline-flex;align-items:center;gap:0.75rem}
+.formation-h2-icon{width:20px;height:20px;display:inline-block;filter:invert(1) brightness(1)}
+.formation-list{display:block}
+.formation-item{display:flex;gap:1rem;align-items:flex-start}
+.formation-media{width:56px;flex:0 0 56px}
+.formation-logo{width:56px;height:56px;display:block;object-fit:contain}
+.formation-body{flex:1}
+.formation-row{display:flex;align-items:center;justify-content:space-between;gap:1rem}
+.formation-info{min-width:0}
+.formation-school{font-weight:700;font-size:1.05rem;color:#111827; /* will be adjusted for dark bg below */}
+.formation-degree{color:#111827;opacity:0.85;margin-top:4px}
+.formation-dates{color:#9ca3af;margin-top:6px}
+
+/* status badge that looks like a non-clickable button */
+/* status badge removed - styles cleared */
+
+/* dark-mode adjustments: text should be visible on the site's dark background */
+.formation-inner h2{color:#fff}
+.formation-school{color:#fff}
+.formation-degree{color:#d1d5db}
+
+/* image styling for intro */
+.video-play-btn{display:none}
 
 /* Layout for profile page */
 .profile-page {
