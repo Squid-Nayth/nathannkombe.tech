@@ -215,6 +215,30 @@ body.overlay-active footer{
 .formation-school{color:#fff}
 .formation-degree{color:#d1d5db}
 
+/* ---------- Expérience ---------- */
+.experience-section{padding:3.5rem 1rem;background:transparent}
+.experience-inner{max-width:1100px;margin:0 auto}
+.experience-inner h2{font-size:2.2rem;margin-bottom:1.25rem;font-weight:800;color:#fff;display:inline-flex;align-items:center;gap:0.75rem}
+.experience-h2-icon{width:20px;height:20px;display:inline-block;filter:invert(1) brightness(1)}
+.experience-list{display:block}
+.experience-item{display:flex;gap:1rem;align-items:flex-start;padding:1rem 0;border-bottom:1px solid rgba(255,255,255,0.04)}
+.experience-item:last-child{border-bottom:none}
+.experience-media{width:56px;flex:0 0 56px}
+.experience-logo{width:56px;height:56px;display:block;object-fit:contain;border-radius:6px;background:rgba(255,255,255,0.02);padding:6px}
+.experience-body{flex:1}
+.experience-row{display:flex;align-items:center;justify-content:space-between;gap:1rem}
+.experience-info{min-width:0}
+.experience-title{font-weight:700;font-size:1.05rem;color:#fff}
+.experience-company{color:#9ca3af;margin-top:4px}
+.experience-dates{color:#9ca3af;margin-top:0}
+.experience-location{color:#9ca3af;margin-top:6px}
+.experience-desc{color:#d1d5db;margin-top:8px}
+
+@media (max-width:880px){
+  .experience-item{flex-direction:row;gap:0.75rem}
+  .experience-row{flex-direction:column;align-items:flex-start}
+}
+
 /* image styling for intro */
 .video-play-btn{display:none}
 
