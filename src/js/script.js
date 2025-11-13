@@ -41,6 +41,49 @@ document.addEventListener('DOMContentLoaded', () => {
   // Video logic removed — intro uses a static image instead
 });
 
+// Contact form handling: show a confirmation message on submit (client-side)
+document.addEventListener('DOMContentLoaded', () => {
+  const form = document.querySelector('.contact-form');
+  if (!form) return;
+
+  const confirmation = document.querySelector('.contact-confirmation');
+
+  form.addEventListener('submit', (e) => {
+    e.preventDefault();
+
+    // Simple client-side validation
+    const email = form.querySelector('input[name="email"]');
+    const message = form.querySelector('textarea[name="message"]');
+    if (!email || !message) return;
+    if (!email.value.trim() || !message.value.trim()) {
+      // focus the first empty field
+      if (!email.value.trim()) email.focus(); else message.focus();
+      return;
+    }
+
+    // show confirmation
+    if (confirmation) {
+      confirmation.hidden = false;
+      confirmation.style.opacity = '0';
+      // fade in
+      requestAnimationFrame(() => { confirmation.style.transition = 'opacity .28s ease'; confirmation.style.opacity = '1'; });
+    }
+
+    // reset form after submit
+    form.reset();
+
+    // hide confirmation after 4s
+    setTimeout(() => {
+      if (confirmation) {
+        confirmation.style.opacity = '0';
+        confirmation.addEventListener('transitionend', function handler() {
+          confirmation.hidden = true; confirmation.style.transition = ''; confirmation.removeEventListener('transitionend', handler);
+        });
+      }
+    }, 4000);
+  });
+});
+
 /* Face ID intro: show overlay at load, then wait for user's hover to complete animation
    Behavior: overlay visible on load (page blurred). When user mouseenters the face,
    add 'active' and after 1700ms add 'completed' (then hide overlay). On mouseleave,
