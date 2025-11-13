@@ -1,7 +1,6 @@
-// Dynamic helper to adjust the CSS-only typewriter animation to the actual name length
-// and a small handler for the email-send toggle switch.
+// Typewriter + toggle handler (dynamic)
 document.addEventListener('DOMContentLoaded', () => {
-  // --- Typewriter setup ---
+  // Typewriter: set --chars and animation duration based on text length
   const el = document.querySelector('.typewriter-name');
   if (el) {
     const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -17,25 +16,24 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  // --- Toggle switch for email sending ---
+  // Toggle: persist state in localStorage and initialize UI
   const toggle = document.getElementById('emailToggle');
-  const STORAGE_KEY = 'email.enabled';
+  const KEY = 'email.enabled';
   if (toggle) {
-    // Initialize from localStorage (default: true)
-    const saved = localStorage.getItem(STORAGE_KEY);
-    const enabled = saved === null ? true : saved === '1';
+    const saved = localStorage.getItem(KEY);
+    const enabled = saved === null ? false : saved === '1';
     toggle.checked = enabled;
     toggle.setAttribute('aria-checked', String(enabled));
 
     toggle.addEventListener('change', (e) => {
       const on = e.target.checked;
-      localStorage.setItem(STORAGE_KEY, on ? '1' : '0');
+      localStorage.setItem(KEY, on ? '1' : '0');
       toggle.setAttribute('aria-checked', String(on));
-      // Optional: show a small feedback (temporary)
-      const label = document.querySelector('.switch-label strong');
-      if (label) {
-        label.textContent = on ? "Envoi d'e-mails activé" : "Envoi d'e-mails désactivé";
-        setTimeout(() => { if (label) label.textContent = "Envoi d'e-mails"; }, 1400);
+      // brief label feedback
+      const title = document.querySelector('.contact-title');
+      if (title) {
+        title.textContent = on ? 'Vous aimez mon travail ? — notifications activées' : 'Vous aimez mon travail ?';
+        setTimeout(() => { if (title) title.textContent = 'Vous aimez mon travail ?'; }, 1400);
       }
     });
   }

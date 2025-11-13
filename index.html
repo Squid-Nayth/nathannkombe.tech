@@ -8,54 +8,37 @@
     <link href="./src/css/style.css" rel="stylesheet">
   </head>
   <body>
-  <main class="profile-page">
-      <section class="profile-container">
-        <aside class="profile-aside">
-          <div class="avatar" aria-hidden="true">NM</div>
-          <div class="socials">
-            <a href="#" aria-label="GitHub" class="social">GitHub</a>
-            <a href="#" aria-label="LinkedIn" class="social">LinkedIn</a>
-            <a href="mailto:contact@nathannkombe.tech" aria-label="Email" class="social">Email</a>
-          </div>
-        </aside>
+    <main class="hero">
+      <div class="hero-inner">
+        <div class="hero-name">Nathan Michel</div>
+        <h1 class="hero-heading">Je crée des sites web<br>et des applications.</h1>
+        <div class="hero-shadow" aria-hidden="true"></div>
+      </div>
+    </main>
 
-        <section class="profile-main">
-          <h1 class="profile-name"><span class="typewriter-name">Nathan Michel</span></h1>
-          <p class="profile-role">Développeur Full Stack — MERN & Java</p>
-          <p class="profile-bio">J'aide les équipes à concevoir et livrer des applications web robustes et performantes. Passionné par l'UX, l'architecture backend et l'expérience développeur.</p>
-
-          <div class="profile-ctas">
-            <a class="btn primary" href="#contact">Contactez-moi</a>
-            <a class="btn" href="#resume">Télécharger mon CV</a>
-          </div>
-
-          <div class="profile-skills">
-            <h3>Compétences</h3>
-            <ul class="skills-list">
-              <li>JavaScript (Node, React)</li>
-              <li>Java / Spring Boot</li>
-              <li>MongoDB / PostgreSQL</li>
-              <li>Docker & CI/CD</li>
-              <li>Tests & TDD</li>
-            </ul>
-          </div>
-        </section>
-      </section>
-
-      <footer id="contact" class="contact-section">
-        <h4>Prêt à discuter ?</h4>
-        <p>Envoyez‑moi un message — je réponds généralement sous 48h.</p>
-        <div class="container-small" aria-hidden="false">
-          <div class="switch-container" role="group" aria-label="Activation envoi d'emails">
-            <div class="switch-label">
-              <strong>Envoi d'e-mails</strong>
-              <span class="muted">Activer / Désactiver l'envoi</span>
-            </div>
-            <div>
-              <label class="switch" title="Activer l'envoi d'emails">
+    <footer id="contact" class="contact-section">
+        <div class="contact-inner">
+          <div class="contact-top">
+            <div class="switch-box">
+              <label class="switch big-switch" title="Notifications">
                 <input type="checkbox" id="emailToggle" aria-checked="false">
                 <span class="slider" aria-hidden="true"></span>
               </label>
+            </div>
+
+            <div class="contact-copy">
+              <h2 class="contact-title">Vous aimez mon travail ?</h2>
+              <p class="contact-desc">Activez les notifications pour être au courant des nouveautés apportées à mon portfolio. Pas plus de 3 à 4 notifications par an.</p>
+            </div>
+          </div>
+
+          <div class="contact-bottom">
+            <div class="contact-line">
+              <span class="contact-name">Nathan Michel — Développeur</span>
+              <span class="contact-spacer">&nbsp;&mdash;&nbsp;</span>
+              <a class="contact-email" href="mailto:contact@nathannkombe.tech">contact@nathannkombe.tech</a>
+              <a class="contact-link" href="#">LinkedIn</a>
+              <a class="contact-link" href="#">GitHub</a>
             </div>
           </div>
         </div>

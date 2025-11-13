@@ -11,8 +11,55 @@ body {
 body {
   background: linear-gradient(180deg, #050505 0%, #0b0b0b 100%);
   color: #fff;
-  font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
   line-height: 1.4;
+}
+
+/* Hero landing inspired by the image */
+.hero{
+  min-height: 85vh;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  text-align:center;
+  position:relative;
+  padding:6vh 1rem;
+}
+.hero-inner{
+  max-width:1200px;
+  width:100%;
+  padding:0 1rem;
+}
+.hero-name{
+  color:#8b8f94;
+  font-weight:700;
+  font-size:clamp(1rem,2.4vw,1.4rem);
+  margin-bottom:1.6rem;
+  opacity:0.95;
+}
+.hero-heading{
+  color:#fff;
+  font-weight:800;
+  line-height:0.98;
+  margin:0 auto;
+  /* Taille réduite de 50% sur min / vw / max */
+  font-size:clamp(1.9rem,6.5vw,6rem);
+  letter-spacing:-0.01em;
+  -webkit-font-smoothing:antialiased;
+  text-wrap:balance;
+  word-break:break-word;
+}
+.hero-shadow{
+  position:absolute;
+  left:50%;
+  transform:translateX(-50%);
+  bottom:8vh;
+  width:160px;
+  height:260px;
+  background:linear-gradient(180deg, rgba(255,255,255,0.06), rgba(255,255,255,0.01) 30%, rgba(0,0,0,0));
+  filter:blur(40px);
+  opacity:0.6;
+  pointer-events:none;
 }
 
 /* Layout for profile page */
@@ -125,11 +172,39 @@ body {
 .contact-section {
   margin-top: auto;
   background: linear-gradient(180deg, transparent, rgba(255, 255, 255, 0.02));
-  padding: 2rem;
-  text-align: center;
+  padding: 3rem 1.25rem;
+  text-align: left;
 }
 .contact-section h4 {
   margin-bottom: 0.4rem;
+}
+
+.contact-inner{max-width:1100px;margin:0 auto;border-top:1px solid rgba(255,255,255,0.06);padding-top:2.25rem}
+.contact-top{display:flex;align-items:center;gap:2.5rem}
+.switch-box{flex:0 0 auto}
+.contact-copy{flex:1}
+.contact-title{font-size:clamp(1.6rem,3.5vw,2.2rem);margin:0;color:#e5e7eb}
+.contact-desc{color:#9ca3af;margin-top:.6rem;max-width:78ch;line-height:1.4}
+
+/* Big switch variant */
+.big-switch{display:inline-block;width:96px;height:56px;position:relative}
+.big-switch .slider{border-radius:999px;background:#232323}
+.big-switch .slider::before{height:48px;width:48px;left:4px;bottom:4px;background:#fff;border-radius:50%;transition:all 300ms ease}
+.big-switch input:checked + .slider{background:#111}
+.big-switch input:checked + .slider::before{transform:translateX(40px)}
+
+.contact-bottom{margin-top:3.5rem}
+.contact-line{display:flex;flex-wrap:wrap;align-items:center;gap:1rem;color:#9ca3af}
+.contact-name{color:#d1d5db}
+.contact-email{color:inherit;text-decoration:underline dotted rgba(255,255,255,0.12);padding-left:4px}
+.contact-link{color:inherit;text-decoration:underline dotted rgba(255,255,255,0.12);margin-left:8px}
+
+@media (max-width:720px){
+  .contact-top{flex-direction:row;align-items:center}
+  .big-switch{width:72px;height:44px}
+  .big-switch .slider::before{height:36px;width:36px;left:4px;bottom:4px}
+  .big-switch input:checked + .slider::before{transform:translateX(28px)}
+  .contact-title{font-size:1.4rem}
 }
 
 /* Toggle switch styles (container + switch) */
@@ -157,7 +232,7 @@ body {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  font-family: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
   font-size: 15px;
   margin: 8px 0;
 }
