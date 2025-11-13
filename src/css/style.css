@@ -134,9 +134,9 @@ body {
   display:flex;
   align-items:center;
   justify-content:center;
-  /* darker translucent backdrop to improve contrast */
-  background: rgba(0,0,0,0.64);
-  backdrop-filter: blur(2px);
+  /* Fully obscure the page during Face ID intro: near-black + strong blur */
+  background: rgba(0,0,0,0.98);
+  backdrop-filter: blur(12px) saturate(0.95);
 }
 .faceid-overlay.hidden{opacity:0;visibility:hidden;pointer-events:none}
 
@@ -171,8 +171,10 @@ body {
 /* Blur the background content while overlay is active */
 body.overlay-active main,
 body.overlay-active footer{
-  filter:blur(6px) saturate(.95);
-  transition:filter .3s ease;
+  /* hide underlying content completely while overlay is active */
+  opacity:0;
+  transform:scale(0.998);
+  transition:opacity .2s ease, transform .2s ease;
   pointer-events:none;
   user-select:none;
 }
