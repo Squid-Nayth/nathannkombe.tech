@@ -191,6 +191,48 @@ body.overlay-active footer{
   .intro-video{height:220px;max-width:100%}
 }
 
+/* ---------- Carousels (Outils & Compétences) ---------- */
+:root{--carousel-slide-w:140px;--carousel-slide-h:96px;--carousel-visible-w:960px;--carousel-speed:40s}
+.carousel-section{padding:2.5rem 1rem;background:transparent}
+.carousel-inner{max-width:1100px;margin:0 auto}
+.carousel-inner h2{font-size:1.5rem;margin-bottom:.75rem;font-weight:800;color:#fff;display:inline-flex;align-items:center;gap:.6rem}
+.carousel-slider{background:linear-gradient(180deg,#0b0b0b 0%, #050505 100%);box-shadow:0 10px 20px -5px rgba(0,0,0,0.35);height:var(--carousel-slide-h);margin:0 auto;overflow:hidden;position:relative;max-width:var(--carousel-visible-w);}
+.carousel-slider::before,.carousel-slider::after{content:"";position:absolute;top:0;width:180px;height:100%;z-index:2;background:linear-gradient(to right, rgba(11,11,11,1) 0%, rgba(11,11,11,0) 100%)}
+.carousel-slider::after{right:0;transform:rotateZ(180deg)}
+.slide-track{display:flex;width:calc(var(--carousel-slide-w) * 14);align-items:center}
+.slide{flex:0 0 var(--carousel-slide-w);height:var(--carousel-slide-h);display:flex;align-items:center;justify-content:center;padding:8px}
+.slide img{max-width:100%;max-height:100%;object-fit:contain;display:block;filter:brightness(1) saturate(1)}
+
+/* Tools: scroll right -> left (normal) */
+
+.tools-slider .slide-track{animation:scroll var(--carousel-speed) linear infinite}
+
+/* Skills: scroll left -> right (reverse) */
+.skills-slider .slide-track{animation:scroll var(--carousel-speed) linear infinite reverse}
+
+@keyframes scroll{
+  0%{transform:translateX(0)}
+  100%{transform:translateX(calc(-1 * var(--carousel-slide-w) * 7))}
+}
+
+/* responsive: reduce slide size on small screens */
+@media (max-width:720px){
+  :root{--carousel-slide-w:110px;--carousel-slide-h:72px;--carousel-visible-w:100%}
+  .carousel-slider::before,.carousel-slider::after{width:90px}
+}
+
+/* Pause carousels on hover and when focused (accessibility) */
+.carousel-slider:hover .slide-track,
+.carousel-slider:focus-within .slide-track {
+  animation-play-state: paused !important;
+}
+
+/* allow users to pause animation with keyboard focus on slides */
+.carousel-slider .slide:focus-within ~ .slide-track,
+.carousel-slider .slide:focus {
+  outline: none;
+}
+
 /* Formation / Education section styles */
 .formation-section{padding:3.5rem 1rem;background:transparent}
 .formation-inner{max-width:1100px;margin:0 auto}
