@@ -106,15 +106,16 @@ body {
 }
 
 @keyframes hint-point {
-  0% { transform: translateY(0) rotate(0deg); }
-  30% { transform: translateY(8px) rotate(12deg); }
-  60% { transform: translateY(4px) rotate(6deg); }
-  100% { transform: translateY(0) rotate(0deg); }
+  /* smooth up-and-down motion, arrow stays straight (no rotation) */
+  0%   { transform: translateY(0); }
+  50%  { transform: translateY(-10px); }
+  100% { transform: translateY(0); }
 }
 
 /* Only the arrow animates (points toward the text repeatedly) */
 .hero-scroll-hint .hint-arrow{
-  animation: hint-point 1.6s cubic-bezier(.22,.9,.28,1) infinite;
+  /* ease-in-out for a fluid feel, continuous loop without abrupt jumps */
+  animation: hint-point 1.6s ease-in-out infinite;
 }
 
 /* Respect reduced motion */
