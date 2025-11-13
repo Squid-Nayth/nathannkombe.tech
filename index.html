@@ -3,13 +3,30 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Nathan Michel | Développeur Full Stack | MERN et Java Full Stack</title>
-    <script src="https://unpkg.com/@primer/octicons@19.8.0/build/build.js"></script>
+    <title>Nathan Michel | Développeur Web | MERN et Java Full Stack</title>
     <link href="./src/css/style.css" rel="stylesheet">
     <!-- GitHub calendar responsive CSS -->
     <link rel="stylesheet" href="https://unpkg.com/github-calendar@latest/dist/github-calendar-responsive.css">
   </head>
   <body>
+    <!-- Top navigation (inspired by attachment) -->
+    <nav class="site-nav" role="navigation" aria-label="Navigation principale">
+      <div class="nav-inner">
+        <div class="nav-left">
+          <a class="site-title" href="#">NKOMBE LASSENI Nathan Michel</a>
+        </div>
+        <div class="nav-right">
+          <a class="nav-link" href="#formation-heading" title="Formation"><img src="public/icons/mortar-board-16.svg" alt="Formation icon" aria-hidden="true"></a>
+          <a class="nav-link" href="#experience-heading" title="Expérience"><img src="public/icons/organization-16.svg" alt="Expérience icon" aria-hidden="true"></a>
+          <a class="nav-link" href="#projects-heading" title="Projets"><img src="public/icons/repo-16.svg" alt="Projets icon" aria-hidden="true"></a>
+          <a class="nav-link" href="#contrib-heading" title="Contributions"><img src="public/icons/git-commit-16.svg" alt="Contributions icon" aria-hidden="true"></a>
+          <a class="nav-link" href="#tools-heading" title="Outils"><img src="public/icons/package-16.svg" alt="Outils icon" aria-hidden="true"></a>
+          <a class="nav-link" href="#skills-heading" title="Compétences"><img src="public/icons/terminal-16.svg" alt="Compétences icon" aria-hidden="true"></a>
+          <a class="nav-cta" href="public/docs/nathan-cv.pdf" target="_blank" rel="noopener" title="Lire mon CV">Lire mon CV</a>
+          <a class="nav-bubble" href="#contact" title="On discute ?">Hey ! On discute ?</a>
+        </div>
+      </div>
+    </nav>
     <!-- Face ID intro overlay -->
     <div class="faceid-overlay" aria-hidden="false">
       <div class="canvas">
@@ -38,11 +55,6 @@
             Contactez-moi
           </a>
           <div class="hero-shadow" aria-hidden="true"></div>
-              <!-- Scroll hint: arrow + text -->
-              <div class="hero-scroll-hint" aria-hidden="true">
-                <img src="public/icons/arrow-down-16.svg" alt="Flèche vers le bas" class="hint-arrow">
-                <div class="hint-text">Glissez pour continuer</div>
-              </div>
       </div>
     </main>
 
@@ -50,15 +62,15 @@
     <section class="intro-summary" aria-labelledby="intro-heading">
       <div class="intro-inner">
         <div class="intro-left">
-          <h2 id="intro-heading">Yup! I'm a Full Stack Developer. Big deal, right?</h2>
-          <p class="intro-copy">But wait... there's more! I'm not just any developer, I love building solutions and solving problems. I enjoy crafting websites with React, TypeScript, Express, Spring Boot using MongoDB, MySQL databases and I live on the terminal mostly.</p>
-          <p class="intro-copy">I love both Development &amp; Design. So, that means I can create beautiful and functional websites. I'm always looking for new opportunities to learn and grow.</p>
+          <h2 id="intro-heading">Bonjour ! Je suis Nathan Michel, Développeur Web Fullstack et Java</h2>
+          <p class="intro-copy">J’accorde une grande importance à l’expérience utilisateur, au design et l'accessibilité de mes projets.</p>
+          <p class="intro-copy">J'adore le développement et le design. Je peux donc créer des sites web à la fois esthétiques et fonctionnels. Je suis toujours à la recherche de nouvelles opportunités d'apprentissage et de développement.</p>
         </div>
 
         <div class="intro-right">
           <div class="intro-image-wrap">
             <img class="intro-image" src="public/images/nathan%20memoji.png" alt="Nathan memoji">
-            <a class="download-cv" href="public/files/Nathan_CV.pdf" download>
+            <a class="download-cv" href="public/docs/nathan-cv.pdf" download>
               <img class="download-icon" src="public/icons/move-to-bottom-16.svg" alt="" aria-hidden="true">
               Télécharger mon CV
             </a>
@@ -165,11 +177,11 @@
                 <span>HTML</span><span>CSS</span><span>Formulaire</span>
               </div>
               <div class="project-links">
-                <a class="project-cta" href="#">
+                <a class="project-cta" href="https://screenfix.fr" target="_blank" rel="noopener noreferrer">
                   <img src="public/icons/rss-16.svg" alt="Démo" aria-hidden="true">
                   Démo
                 </a>
-                <a class="project-cta" href="#">
+                <a class="project-cta" href="https://github.com/Squid-Nayth/Screenfix" target="_blank" rel="noopener noreferrer">
                   <img src="public/icons/mark-github-16.svg" alt="GitHub" aria-hidden="true">
                   GitHub
                 </a>
@@ -279,16 +291,15 @@
     <!-- Contacts section (form) inserted after Compétences) -->
     <section id="contact" class="contacts-section" aria-labelledby="contacts-heading">
       <div class="contacts-inner">
-        <h2 id="contacts-heading">Let's Connect</h2>
-        <p class="contacts-sub">Feel free to reach out for collaborations or just a friendly hello 👋</p>
+        <h2 id="contacts-heading">Connectons-nous !</h2>
+        <p class="contacts-sub">N'hésitez pas à me contacter pour des collaborations ou simplement pour un bonjour amical 👋</p>
 
         <form class="contact-form" action="#" method="POST" novalidate>
-          <label class="sr-only" for="cf-email">Your Email</label>
-          <input id="cf-email" name="email" type="email" placeholder="Your Email" required>
+          <label class="sr-only" for="cf-email">Votre Email</label>
+          <input id="cf-email" name="email" type="email" placeholder="Votre Email" required>
 
-          <label class="sr-only" for="cf-message">Your Message</label>
-          <textarea id="cf-message" name="message" rows="8" placeholder="Your Message" required></textarea>
-
+          <label class="sr-only" for="cf-message">Votre Message</label>
+          <textarea id="cf-message" name="message" rows="8" placeholder="Votre Message" required></textarea>
           <div class="contact-form-actions">
             <button type="submit" class="btn-send">
               <img src="public/icons/paper-airplane-16.svg" alt="Envoyer" aria-hidden="true">
@@ -320,11 +331,11 @@
 
           <div class="contact-bottom">
             <div class="contact-line">
-              <span class="contact-name">Nathan Michel — Développeur</span>
+              <span class="contact-name">Nathan Michel — Développeur web FullStack MERN et Java</span>
               <span class="contact-spacer">&nbsp;&mdash;&nbsp;</span>
-              <a class="contact-email" href="mailto:contact@nathannkombe.tech">contact@nathannkombe.tech</a>
-              <a class="contact-link" href="#">LinkedIn</a>
-              <a class="contact-link" href="#">GitHub</a>
+              <a class="contact-email" href="mailto:nathannkombe@gmail.com">nathannkombe@gmail.com</a>
+              <a class="contact-link" href="https://www.linkedin.com/in/nathan-michel-nkombe-lasseni-474ab930a/">LinkedIn</a>
+              <a class="contact-link" href="https://github.com/Squid-Nayth">GitHub</a>
             </div>
           </div>
         </div>

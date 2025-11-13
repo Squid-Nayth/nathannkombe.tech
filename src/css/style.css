@@ -15,9 +15,50 @@ body {
   line-height: 1.4;
 }
 
+/* ---------- Top navigation (inspired by attachment) ---------- */
+.site-nav{
+  position:fixed;
+  top:0;left:0;right:0;
+  height:56px;
+  display:flex;
+  align-items:center;
+  z-index:1100;
+  padding:0 1rem;
+  background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+  backdrop-filter: blur(6px) saturate(0.9);
+  border-bottom:1px solid rgba(255,255,255,0.02);
+}
+.nav-inner{max-width:1200px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;width:100%}
+.nav-left .site-title{color:#9ca3af;text-decoration:none;font-weight:800;font-size:0.95rem;padding:8px 6px}
+.nav-right{display:flex;align-items:center;gap:0.45rem}
+.nav-link{display:inline-flex;align-items:center;justify-content:center;padding:8px;border-radius:8px;text-decoration:none}
+.nav-link img{width:18px;height:18px;display:block;filter:invert(1) brightness(1);opacity:0.95}
+.nav-link:hover{background:rgba(255,255,255,0.02)}
+.nav-cta{margin-left:6px;padding:6px 10px;border-radius:999px;background:transparent;border:1px solid rgba(255,255,255,0.06);color:#fff;font-weight:700;text-decoration:none}
+.nav-bubble{margin-left:8px;padding:6px 12px;border-radius:999px;background:#007aff;color:#fff;text-decoration:none;font-weight:800;box-shadow:0 8px 22px rgba(0,122,255,0.12)}
+
+/* Ensure content is not hidden under the fixed nav */
+main{padding-top:64px}
+
+@media (max-width:880px){
+  .nav-inner{padding:0 8px}
+  .nav-right .nav-cta{display:none}
+  .nav-right .nav-bubble{display:none}
+  .nav-right{gap:8px}
+}
+/* Smooth scroll for in-page links and offset to account for fixed nav */
+html{scroll-behavior:smooth}
+:root{--nav-height:64px}
+/* Add a margin so anchored headings aren't hidden under the fixed nav */
+section{scroll-margin-top:calc(var(--nav-height) + 8px)}
+
+
 /* Hero landing inspired by the image */
 .hero{
-  min-height: 85vh;
+  /* Ensure the hero fills the viewport under the fixed nav so the next
+     section (intro) isn't visible on initial load. Uses the --nav-height
+     variable defined in :root for consistency. */
+  min-height: calc(100vh - var(--nav-height));
   display:flex;
   align-items:center;
   justify-content:center;
@@ -75,57 +116,7 @@ body {
   pointer-events:none;
 }
 
-/* Scroll hint (arrow + label) centered at bottom of hero */
-.hero-scroll-hint{
-  position:absolute;
-  left:50%;
-  bottom:3.2rem;
-  transform:translateX(-50%);
-  display:flex;
-  flex-direction:column;
-  align-items:center;
-  gap:0.45rem;
-  z-index:6;
-  pointer-events:none; /* make container decorative by default */
-}
-.hero-scroll-hint .hint-arrow{
-  width:28px;
-  height:28px;
-  filter:invert(1) brightness(1.05);
-  display:block;
-  pointer-events:auto; /* only the arrow is interactive */
-  cursor:pointer;
-  will-change:transform;
-}
-.hero-scroll-hint .hint-text{
-  font-size:0.92rem;
-  color:rgba(255,255,255,0.86);
-  font-weight:600;
-  letter-spacing:0.02em;
-  text-transform:none;
-}
 
-@keyframes hint-point {
-  /* smooth up-and-down motion, arrow stays straight (no rotation) */
-  0%   { transform: translateY(0); }
-  50%  { transform: translateY(-10px); }
-  100% { transform: translateY(0); }
-}
-
-/* Only the arrow animates (points toward the text repeatedly) */
-.hero-scroll-hint .hint-arrow{
-  /* ease-in-out for a fluid feel, continuous loop without abrupt jumps */
-  animation: hint-point 1.6s ease-in-out infinite;
-}
-
-/* Respect reduced motion */
-@media (prefers-reduced-motion: reduce){
-  .hero-scroll-hint .hint-arrow{ animation:none }
-}
-
-/* Pause the hint while Face ID overlay is active */
-.animations-paused .hero-scroll-hint .hint-arrow{ animation-play-state: paused !important; opacity:0 }
-.animations-paused .hero-scroll-hint .hint-text{ opacity:0 }
 
 /* Contact CTA inside hero (rounded blue panel with comment icon + halo) */
 .contact-cta{

@@ -262,33 +262,31 @@ runAfterFaceID(() => {
   initHeroPopper();
 });
 
-// Smooth scroll when clicking the hero hint arrow. Make the arrow accessible
-// (tabindex/role) and respond to Enter/Space as activation keys.
+// Note: hero scroll hint removed — no smooth-scroll handlers required.
+
+// Custom smooth scroll for internal anchors to position the target heading
+// just below the fixed navbar so the title is visible while the section
+// content remains below the fold. This provides a consistent offset.
 document.addEventListener('DOMContentLoaded', () => {
-  const hintArrow = document.querySelector('.hero-scroll-hint .hint-arrow');
-  if (!hintArrow) return;
+  const nav = document.querySelector('.site-nav');
+  const navHeight = nav ? nav.offsetHeight : 64;
+  const extraGap = 12; // px gap between navbar bottom and the title
 
-  // make arrow keyboard-focusable & accessible
-  hintArrow.setAttribute('tabindex', '0');
-  hintArrow.setAttribute('role', 'button');
-  hintArrow.setAttribute('aria-label', 'Aller à la section suivante');
+  document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+    anchor.addEventListener('click', (ev) => {
+      const href = anchor.getAttribute('href');
+      if (!href || href === '#') return; // ignore empty anchors
+      // only handle same-document hashes
+      if (href.startsWith('#')) {
+        const target = document.querySelector(href);
+        if (!target) return; // nothing to scroll to
+        ev.preventDefault();
 
-  function targetNextSection() {
-    const hero = document.querySelector('main.hero');
-    if (!hero) return;
-    // find next element that is a section
-    let el = hero.nextElementSibling;
-    while (el && el.nodeType === 1 && el.tagName.toLowerCase() !== 'section') el = el.nextElementSibling;
-    const target = el || document.querySelector('section');
-    if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
-  }
-
-  hintArrow.addEventListener('click', (e) => { e.preventDefault(); targetNextSection(); });
-
-  hintArrow.addEventListener('keydown', (e) => {
-    if (e.key === 'Enter' || e.key === ' ' || e.key === 'Spacebar') {
-      e.preventDefault(); targetNextSection();
-    }
+        const targetTop = window.scrollY + target.getBoundingClientRect().top;
+        const scrollTo = Math.max(0, targetTop - navHeight - extraGap);
+        window.scrollTo({ top: scrollTo, behavior: 'smooth' });
+      }
+    });
   });
 });
 
