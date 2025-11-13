@@ -271,7 +271,27 @@
       </div>
     </section>
 
-    <footer id="contact" class="contact-section">
+    <!-- Contacts section (form) inserted after Compétences) -->
+    <section id="contact" class="contacts-section" aria-labelledby="contacts-heading">
+      <div class="contacts-inner">
+        <h2 id="contacts-heading">Let's Connect</h2>
+        <p class="contacts-sub">Feel free to reach out for collaborations or just a friendly hello 👋</p>
+
+        <form class="contact-form" action="#" method="POST" novalidate>
+          <label class="sr-only" for="cf-email">Your Email</label>
+          <input id="cf-email" name="email" type="email" placeholder="Your Email" required>
+
+          <label class="sr-only" for="cf-message">Your Message</label>
+          <textarea id="cf-message" name="message" rows="8" placeholder="Your Message" required></textarea>
+
+          <div class="contact-form-actions">
+            <button type="submit" class="btn-send">Send</button>
+          </div>
+        </form>
+      </div>
+    </section>
+
+    <footer class="site-footer contact-section">
         <div class="contact-inner">
           <div class="contact-top">
             <div class="switch-box">
