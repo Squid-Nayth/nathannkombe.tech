@@ -1,20 +1,252 @@
 /* Simple CSS-only typewriter effect and centered layout */
-*{box-sizing:border-box;margin:0;padding:0}
-html,body{height:100%}
-body{background:#000;color:#fff;font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;display:grid;place-items:center;padding:2rem}
-.hero{width:100%;display:flex;align-items:center;justify-content:center;min-height:100vh}
-.typewriter{font-weight:800;font-size:clamp(2rem,10vw,4rem);white-space:nowrap;overflow:hidden}
-.typewriter-text{display:inline-block;vertical-align:bottom;white-space:nowrap;overflow:hidden;border-right:.12em solid currentColor;padding-right:.1ch;
-  /* length: number of characters in the text (including spaces). Adjust if you change the text */
-  --chars: 13ch;
-  width: 0ch;
-  animation: typing 2s steps(13,end) forwards, blink-caret .7s step-end infinite;
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
 }
+html,
+body {
+  height: 100%;
+}
+body {
+  background: linear-gradient(180deg, #050505 0%, #0b0b0b 100%);
+  color: #fff;
+  font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+  line-height: 1.4;
+}
+
+/* Layout for profile page */
+.profile-page {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+.profile-container {
+  max-width: 1100px;
+  margin: 4rem auto;
+  padding: 2rem;
+  display: flex;
+  gap: 2.5rem;
+  align-items: flex-start;
+}
+.profile-aside {
+  width: 220px;
+  flex: 0 0 220px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.avatar {
+  width: 180px;
+  height: 180px;
+  border-radius: 999px;
+  background: linear-gradient(135deg, #1f2937, #111827);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+  font-size: 3.2rem;
+  color: #fff;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.6);
+}
+.socials {
+  margin-top: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  width: 100%;
+}
+.social {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.04);
+  color: inherit;
+  padding: 0.6rem;
+  border-radius: 0.5rem;
+  text-decoration: none;
+  font-size: 0.95rem;
+}
+
+.profile-main {
+  flex: 1;
+}
+.profile-name {
+  font-size: clamp(2rem, 5vw, 3rem);
+  margin-bottom: 0.2rem;
+}
+.profile-role {
+  color: #9ca3af;
+  margin-bottom: 1rem;
+}
+.profile-bio {
+  max-width: 70ch;
+  margin-bottom: 1.25rem;
+  color: #d1d5db;
+}
+
+.profile-ctas {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+.btn {
+  display: inline-block;
+  padding: 0.7rem 1.1rem;
+  border-radius: 0.6rem;
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  color: inherit;
+  text-decoration: none;
+}
+.btn.primary {
+  background: linear-gradient(90deg, #06b6d4, #7c3aed);
+  color: #fff;
+  border: none;
+  box-shadow: 0 6px 18px rgba(124, 58, 237, 0.18);
+}
+
+.profile-skills h3 {
+  margin-bottom: 0.6rem;
+}
+.skills-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  list-style: none;
+}
+.skills-list li {
+  background: rgba(255, 255, 255, 0.04);
+  padding: 0.45rem 0.7rem;
+  border-radius: 0.5rem;
+  font-size: 0.9rem;
+}
+
+.contact-section {
+  margin-top: auto;
+  background: linear-gradient(180deg, transparent, rgba(255, 255, 255, 0.02));
+  padding: 2rem;
+  text-align: center;
+}
+.contact-section h4 {
+  margin-bottom: 0.4rem;
+}
+
+/* Toggle switch styles (container + switch) */
+.switch-container div {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.switch-container .icon {
+  width: 20px;
+  display: flex;
+}
+
+.container-small {
+  max-width: 360px;
+  border: 1px solid rgba(255,255,255,0.04);
+  padding: 8px 16px;
+  border-radius: 10px;
+  margin: 16px auto;
+  background: rgba(255,255,255,0.01);
+}
+
+.switch-container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-family: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  font-size: 15px;
+  margin: 8px 0;
+}
+
+.switch {
+  width: 60px;
+  height: 34px;
+  display: inline-block;
+  cursor: pointer;
+  position: relative;
+}
+
+.switch .slider {
+  position: absolute;
+  inset: 0;
+  background: #ccc;
+  border-radius: 34px;
+  transition: all 400ms ease;
+}
+
+.switch input {
+  display: none;
+}
+
+.switch .slider::before {
+  content: "";
+  position: absolute;
+  height: 26px;
+  width: 26px;
+  border-radius: 50%;
+  left: 4px;
+  bottom: 4px;
+  background: #fff;
+  transition: all 400ms ease;
+}
+
+.switch input:checked + .slider {
+  background: #34c759;
+}
+
+.switch input:checked + .slider::before {
+  transform: translateX(26px);
+}
+
+.switch-label {
+  display:flex;flex-direction:column;gap:2px
+}
+.switch-label .muted{color: #9ca3af;font-size:0.9rem}
+
+/* Responsive */
+@media (max-width: 880px) {
+  .profile-container {
+    flex-direction: column;
+    align-items: center;
+    padding: 1.25rem;
+  }
+  .profile-aside {
+    width: 100%;
+    flex: 0 0 auto;
+    order: 0;
+  }
+  .profile-main {
+    width: 100%;
+  }
+  .avatar {
+    width: 140px;
+    height: 140px;
+    font-size: 2.4rem;
+  }
+}
+
+/* reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .avatar {
+    transition: none;
+  }
+  }
+
+/* Typewriter effect for profile name */
+.typewriter-name{display:inline-block;white-space:nowrap;overflow:hidden;border-right:.12em solid currentColor;padding-right:.1ch;--chars:13ch;width:0ch;animation:typing 2s steps(13,end) forwards, blink-caret .7s step-end infinite}
 @keyframes typing{from{width:0ch}to{width:var(--chars)}}
 @keyframes blink-caret{50%{border-color:transparent}}
-
-/* small accessibility improvement: reduce motion if user prefers */
-@media (prefers-reduced-motion: reduce){
-  .typewriter-text{animation:none;width:var(--chars)}
-  .typewriter-text{border-right: .12em solid transparent}
+@media (prefers-reduced-motion: reduce) {
+  .typewriter-name {
+    animation: none;
+    width: var(--chars);
+    border-right: .12em solid transparent;
+  }
+  .btn {
+    transition: none;
+  }
 }
