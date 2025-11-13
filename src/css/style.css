@@ -86,13 +86,16 @@ body {
   align-items:center;
   gap:0.45rem;
   z-index:6;
-  pointer-events:none; /* decorative only */
+  pointer-events:none; /* make container decorative by default */
 }
 .hero-scroll-hint .hint-arrow{
-  width:22px;
-  height:22px;
+  width:28px;
+  height:28px;
   filter:invert(1) brightness(1.05);
   display:block;
+  pointer-events:auto; /* only the arrow is interactive */
+  cursor:pointer;
+  will-change:transform;
 }
 .hero-scroll-hint .hint-text{
   font-size:0.92rem;
@@ -102,29 +105,26 @@ body {
   text-transform:none;
 }
 
-@keyframes hint-bob {
-  0%{transform:translateY(0)}
-  40%{transform:translateY(-8px)}
-  70%{transform:translateY(-4px)}
-  100%{transform:translateY(0)}
+@keyframes hint-point {
+  0% { transform: translateY(0) rotate(0deg); }
+  30% { transform: translateY(8px) rotate(12deg); }
+  60% { transform: translateY(4px) rotate(6deg); }
+  100% { transform: translateY(0) rotate(0deg); }
 }
 
-/* animate the arrow (and slightly the label) to invite scrolling */
-.hero-scroll-hint .hint-arrow,
-.hero-scroll-hint .hint-text{
-  animation: hint-bob 1.8s cubic-bezier(.2,.9,.25,1) infinite;
-  will-change:transform,opacity;
+/* Only the arrow animates (points toward the text repeatedly) */
+.hero-scroll-hint .hint-arrow{
+  animation: hint-point 1.6s cubic-bezier(.22,.9,.28,1) infinite;
 }
 
 /* Respect reduced motion */
 @media (prefers-reduced-motion: reduce){
-  .hero-scroll-hint .hint-arrow,
-  .hero-scroll-hint .hint-text{ animation:none }
+  .hero-scroll-hint .hint-arrow{ animation:none }
 }
 
 /* Pause the hint while Face ID overlay is active */
-.animations-paused .hero-scroll-hint .hint-arrow,
-.animations-paused .hero-scroll-hint .hint-text{ animation-play-state: paused !important; opacity:0 }
+.animations-paused .hero-scroll-hint .hint-arrow{ animation-play-state: paused !important; opacity:0 }
+.animations-paused .hero-scroll-hint .hint-text{ opacity:0 }
 
 /* Contact CTA inside hero (rounded blue panel with comment icon + halo) */
 .contact-cta{

@@ -262,3 +262,33 @@ runAfterFaceID(() => {
   initHeroPopper();
 });
 
+// Smooth scroll when clicking the hero hint arrow. Make the arrow accessible
+// (tabindex/role) and respond to Enter/Space as activation keys.
+document.addEventListener('DOMContentLoaded', () => {
+  const hintArrow = document.querySelector('.hero-scroll-hint .hint-arrow');
+  if (!hintArrow) return;
+
+  // make arrow keyboard-focusable & accessible
+  hintArrow.setAttribute('tabindex', '0');
+  hintArrow.setAttribute('role', 'button');
+  hintArrow.setAttribute('aria-label', 'Aller à la section suivante');
+
+  function targetNextSection() {
+    const hero = document.querySelector('main.hero');
+    if (!hero) return;
+    // find next element that is a section
+    let el = hero.nextElementSibling;
+    while (el && el.nodeType === 1 && el.tagName.toLowerCase() !== 'section') el = el.nextElementSibling;
+    const target = el || document.querySelector('section');
+    if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  hintArrow.addEventListener('click', (e) => { e.preventDefault(); targetNextSection(); });
+
+  hintArrow.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' || e.key === ' ' || e.key === 'Spacebar') {
+      e.preventDefault(); targetNextSection();
+    }
+  });
+});
+
