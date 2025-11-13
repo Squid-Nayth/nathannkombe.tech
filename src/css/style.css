@@ -708,6 +708,17 @@ body.overlay-active footer{
   }
   }
 
+/* Reveal-on-scroll utility */
+.reveal-on-scroll{opacity:0;transform:translateY(18px);transition:opacity .64s cubic-bezier(.2,.9,.2,1), transform .64s cubic-bezier(.2,.9,.2,1);will-change:opacity,transform}
+.reveal-on-scroll.is-visible{opacity:1;transform:none}
+
+/* Optional stagger support via data-delay (seconds) */
+.reveal-on-scroll[data-delay]{transition-delay:var(--reveal-delay, 0s)}
+
+@media (prefers-reduced-motion: reduce){
+  .reveal-on-scroll{transition:none;opacity:1;transform:none}
+}
+
 /* Typewriter effect for profile name */
 .typewriter-name{display:inline-block;white-space:nowrap;overflow:hidden;border-right:.12em solid currentColor;padding-right:.1ch;--chars:13ch;width:0ch;animation:typing 2s steps(13,end) forwards, blink-caret .7s step-end infinite}
 @keyframes typing{from{width:0ch}to{width:var(--chars)}}

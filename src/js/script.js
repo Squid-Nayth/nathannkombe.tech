@@ -136,3 +136,47 @@ document.addEventListener('DOMContentLoaded', () => {
     this.classList.remove('completed');
   });
 });
+
+/* Reveal-on-scroll: add .reveal-on-scroll to main blocks and observe them */
+document.addEventListener('DOMContentLoaded', () => {
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+  // choose selectors to reveal (sections and some key components)
+  const selectors = [
+    'section',
+    '.project-card',
+    '.experience-item',
+    '.carousel-section',
+    '.github-calendar-card',
+    '.intro-left',
+    '.intro-right',
+    '.contact-form',
+    '.projects-grid',
+  ].join(', ');
+
+  const nodes = Array.from(document.querySelectorAll(selectors));
+
+  // attach class so CSS hides them initially
+  nodes.forEach((n, i) => {
+    // don't re-add if already present
+    if (!n.classList.contains('reveal-on-scroll')) {
+      n.classList.add('reveal-on-scroll');
+      // small stagger for visible sequence
+      const delay = Math.min(0.18 * (i % 6), 0.6);
+      n.style.setProperty('--reveal-delay', `${delay}s`);
+      n.setAttribute('data-delay', String(delay));
+    }
+  });
+
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('is-visible');
+        // if we want to reveal only once
+        observer.unobserve(entry.target);
+      }
+    });
+  }, { root: null, rootMargin: '0px 0px -8% 0px', threshold: 0.12 });
+
+  nodes.forEach(n => observer.observe(n));
+});
