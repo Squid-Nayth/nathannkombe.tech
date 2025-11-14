@@ -366,6 +366,47 @@ body.overlay-active footer{
 .formation-school{color:#fff}
 .formation-degree{color:#d1d5db}
 
+/* Hover: décalage vers la droite + surbrillance fluide (fade-in) */
+.formation-list .formation-item{
+  position:relative; /* nécessaire pour le pseudo-élément */
+  border-radius:12px;
+  transition: transform .34s cubic-bezier(.2,.9,.25,1), box-shadow .34s ease;
+  will-change: transform, box-shadow;
+}
+.formation-list .formation-item::after{
+  /* surbrillance douce : radial violet très subtil, invisible par défaut */
+  content: "";
+  position:absolute;
+  left:0;right:0;top:0;bottom:0;
+  border-radius:12px;
+  background: radial-gradient(1200px 420px at 20% 50%, rgba(124,58,237,0.12) 0%, rgba(124,58,237,0.06) 18%, rgba(0,0,0,0) 45%);
+  opacity:0;
+  pointer-events:none;
+  transition: opacity .36s ease, transform .36s ease;
+  transform: scale(0.995);
+  z-index:0;
+}
+.formation-list .formation-item:hover,
+.formation-list .formation-item:focus-within{
+  /* conserve la surbrillance et l'ombre mais supprime le décalage horizontal */
+  transform: none !important;
+  box-shadow: 0 14px 40px rgba(2,6,23,0.6), 0 8px 28px rgba(124,58,237,0.06);
+}
+.formation-list .formation-item:hover::after,
+.formation-list .formation-item:focus-within::after{
+  opacity:1;
+  transform: scale(1.02);
+}
+
+/* Assurer que le contenu interne reste au-dessus du pseudo-élément */
+.formation-list .formation-item > *{position:relative;z-index:1}
+
+@media (max-width:720px){
+  .formation-list .formation-item{transition: transform .28s ease}
+  .formation-list .formation-item:hover,
+  .formation-list .formation-item:focus-within{transform:translateX(8px)}
+}
+
 /* ---------- Expérience ---------- */
 .experience-section{padding:3.5rem 1rem;background:transparent}
 .experience-inner{max-width:1100px;margin:0 auto}
@@ -384,6 +425,53 @@ body.overlay-active footer{
 .experience-dates{color:#9ca3af;margin-top:0}
 .experience-location{color:#9ca3af;margin-top:6px}
 .experience-desc{color:#d1d5db;margin-top:8px}
+
+/* Appliquer le même effet que Formation : décalage à droite + surbrillance fluide */
+.experience-list .experience-item{
+  position:relative; /* pour le pseudo-élément */
+  border-radius:12px;
+  transition: transform .34s cubic-bezier(.2,.9,.25,1), box-shadow .34s ease;
+  will-change: transform, box-shadow;
+}
+.experience-list .experience-item::after{
+  content: "";
+  position:absolute;left:0;right:0;top:0;bottom:0;border-radius:12px;
+  background: radial-gradient(1200px 420px at 80% 50%, rgba(10,170,247,0.08) 0%, rgba(10,170,247,0.04) 18%, rgba(0,0,0,0) 45%);
+  opacity:0;pointer-events:none;transition: opacity .36s ease, transform .36s ease;transform:scale(0.995);z-index:0;
+}
+.experience-list .experience-item:hover,
+.experience-list .experience-item:focus-within{
+  transform: translateX(12px);
+  box-shadow: 0 14px 40px rgba(2,6,23,0.6), 0 8px 28px rgba(10,170,247,0.04);
+}
+.experience-list .experience-item:hover::after,
+.experience-list .experience-item:focus-within::after{opacity:1;transform:scale(1.02)}
+.experience-list .experience-item > *{position:relative;z-index:1}
+
+@media (max-width:720px){
+  .experience-list .experience-item{transition: transform .28s ease}
+  .experience-list .experience-item:hover,
+  .experience-list .experience-item:focus-within{transform:translateX(8px)}
+}
+
+/* ----- Override spécifique pour le Stage (2ᵉ .experience-item) -----
+   Empêche uniquement la translation horizontal au survol/focus pour cet
+   élément tout en conservant la pseudo-surbrillance (::after). Utilise
+   un sélecteur plus spécifique pour écraser la règle générale.
+*/
+.experience-list .experience-item:nth-of-type(2):hover,
+.experience-list .experience-item:nth-of-type(2):focus-within{
+  transform: none !important;
+  /* conservez les mêmes ombres que la règle générale pour l'apparence */
+  box-shadow: 0 14px 40px rgba(2,6,23,0.6), 0 8px 28px rgba(10,170,247,0.04);
+}
+
+@media (max-width:720px){
+  .experience-list .experience-item:nth-of-type(2):hover,
+  .experience-list .experience-item:nth-of-type(2):focus-within{
+    transform: none !important;
+  }
+}
 
 /* ---------- Contributions (GitHub calendar) ---------- */
 .contributions-section{padding:3.5rem 1rem;background:transparent}

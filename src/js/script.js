@@ -290,3 +290,72 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 });
 
+
+/* ------------------------------------------------------------------
+   OneSignal toggle integration
+   - Links the #emailToggle switch to the OneSignal SDK so users can
+     enable/disable push notifications via the UI.
+ ------------------------------------------------------------------ */
+(function () {
+  const toggle = document.getElementById('emailToggle');
+  if (!toggle) return;
+
+  function setToggleUI(checked) {
+    toggle.checked = !!checked;
+    toggle.setAttribute('aria-checked', checked ? 'true' : 'false');
+    document.body.classList.toggle('notifications-enabled', !!checked);
+    try { localStorage.setItem('email.notify', checked ? '1' : '0'); } catch (e) {}
+  }
+
+  // Ensure callback runs when OneSignal is available. Supports OneSignal.push and OneSignalDeferred patterns.
+  function whenOneSignalReady(cb) {
+    if (window.OneSignal && typeof window.OneSignal.push === 'function') {
+      window.OneSignal.push(() => cb(window.OneSignal));
+      return;
+    }
+    window.OneSignalDeferred = window.OneSignalDeferred || [];
+    window.OneSignalDeferred.push(cb);
+  }
+
+  // Initialize toggle state from OneSignal
+  whenOneSignalReady(async (OneSignal) => {
+    try {
+      const enabled = await OneSignal.isPushNotificationsEnabled();
+      setToggleUI(enabled);
+    } catch (err) {
+      console.warn('OneSignal: unable to read subscription state', err);
+      // fallback to localStorage value
+      try {
+        const saved = localStorage.getItem('email.notify');
+        setToggleUI(saved === '1');
+      } catch (e) { setToggleUI(false); }
+    }
+  });
+
+  // Handle user toggling the switch
+  toggle.addEventListener('change', (e) => {
+    const wantOn = !!e.target.checked;
+    // optimistic UI
+    setToggleUI(wantOn);
+
+    whenOneSignalReady(async (OneSignal) => {
+      try {
+        if (wantOn) {
+          const already = await OneSignal.isPushNotificationsEnabled();
+          if (!already) {
+            // This will show the permission prompt and register the user
+            await OneSignal.registerForPushNotifications();
+          }
+          await OneSignal.setSubscription(true);
+        } else {
+          await OneSignal.setSubscription(false);
+        }
+      } catch (err) {
+        console.error('OneSignal toggle error', err);
+        // revert UI on error
+        setToggleUI(!wantOn);
+      }
+    });
+  });
+})();
+
