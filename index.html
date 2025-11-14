@@ -26,8 +26,28 @@
           <a class="nav-cta" href="public/docs/nathan-cv.pdf" target="_blank" rel="noopener" title="Lire mon CV">Lire mon CV</a>
           <a class="nav-bubble" href="#contact" title="On discute ?">Hey ! On discute ?</a>
         </div>
+        <!-- Mobile kebab toggle: shown only on small screens -->
+        <button id="mobileNavToggle" class="mobile-nav-toggle" aria-label="Ouvrir le menu" aria-expanded="false">
+          <img src="public/icons/kebab-horizontal-16.svg" alt="menu">
+        </button>
       </div>
     </nav>
+
+    <!-- Mobile slide-in sidebar (links as text) -->
+    <div class="mobile-nav-backdrop" id="mobileNavBackdrop" hidden></div>
+    <aside class="mobile-sidebar" id="mobileSidebar" aria-hidden="true">
+      <nav aria-label="Navigation mobile">
+        <ul>
+          <li><a href="#formation-heading">Formation</a></li>
+          <li><a href="#experience-heading">Expérience</a></li>
+          <li><a href="#projects-heading">Projets</a></li>
+          <li><a href="#contrib-heading">Contributions</a></li>
+          <li><a href="#tools-heading">Outils</a></li>
+          <li><a href="#skills-heading">Compétences</a></li>
+          <li><a href="#contact">Contact</a></li>
+        </ul>
+      </nav>
+    </aside>
     <!-- Face ID intro overlay -->
     <div class="faceid-overlay" aria-hidden="false">
       <div class="canvas">
