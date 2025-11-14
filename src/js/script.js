@@ -359,3 +359,6 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 })();
 
+// OneSignal integration removed. The site retains a simple local toggle handler
+// (which persists `email.enabled` in localStorage) for lightweight UI feedback.
+

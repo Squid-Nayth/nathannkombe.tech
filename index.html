@@ -1,5 +1,15 @@
 <!DOCTYPE html>
 <html lang="fr">
+   <!-- PushAlert -->
+<script type="text/javascript">
+        (function(d, t) {
+                var g = d.createElement(t),
+                s = d.getElementsByTagName(t)[0];
+                g.src = "https://cdn.pushalert.co/integrate_413c09932cbafd37bfe7e33cc8beb1ad.js";
+                s.parentNode.insertBefore(g, s);
+        }(document, "script"));
+</script>
+<!-- End PushAlert -->
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -385,19 +395,7 @@
         </div>
       </footer>
     </main>
-    <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
-<script>
-  window.OneSignalDeferred = window.OneSignalDeferred || [];
-  OneSignalDeferred.push(function(OneSignal) {
-    OneSignal.init({
-      appId: "4cf888c4-561f-453a-a9ac-ba4d00c55f98",
-      safari_web_id: "YOUR_SAFARI_WEB_ID", // Only needed if using custom Safari certificate
-      notifyButton: {
-        enable: true, // Shows the OneSignal bell icon
-      },
-    });
-  });
-</script>
+    <!-- OneSignal removed: push notifications disabled -->
     <!-- GitHub calendar script -->
     <script src="https://unpkg.com/github-calendar@latest/dist/github-calendar.min.js"></script>
     <script>
