@@ -8,9 +8,20 @@ html,
 body {
   height: 100%;
 }
+/* Ensure the document root has the same dark background so overscroll
+   (rubber-banding) doesn't reveal a white page beneath. */
+html{
+  background: linear-gradient(180deg, #050505 0%, #0b0b0b 100%);
+}
 body {
   background: linear-gradient(180deg, #050505 0%, #0b0b0b 100%);
   color: #fff;
+
+  /* Ensure body fills viewport and the background is fixed so overscroll
+     doesn't reveal any underlying white area. */
+  min-height: 100vh;
+  background-attachment: fixed;
+  overscroll-behavior-y: contain; /* prevents propagation of bounce to the viewport */
   font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
   line-height: 1.4;
 }
