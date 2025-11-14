@@ -397,7 +397,16 @@
         }
       });
     </script>
-    <script src="https://s.pageclip.co/v1/pageclip.js" charset="utf-8"></script>
+    <!-- EmailJS SDK (client-side email sending) -->
+    <script src="https://cdn.emailjs.com/sdk/3.2.0/email.min.js"></script>
+    <script>
+      // Initialise EmailJS with your public key (replace placeholder)
+      if (window.emailjs) {
+        try { emailjs.init('J-R25uVYKuSZlk0kL'); } catch (e) { /* ignore */ }
+      }
+    </script>
+    <!-- site API (handles sending emails via EmailJS) -->
+    <script src="src/js/api.js" defer></script>
     <script src="src/js/script.js" defer></script>
     
     

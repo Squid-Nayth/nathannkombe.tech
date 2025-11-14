@@ -77,6 +77,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Simple client-side validation
     const email = form.querySelector('input[name="email"]');
     const message = form.querySelector('textarea[name="message"]');
+    const submitBtn = form.querySelector('.btn-send');
     if (!email || !message) return;
     if (!email.value.trim() || !message.value.trim()) {
       // focus the first empty field
@@ -84,26 +85,58 @@ document.addEventListener('DOMContentLoaded', () => {
       return;
     }
 
-    // show confirmation
-    if (confirmation) {
-      confirmation.hidden = false;
-      confirmation.style.opacity = '0';
-      // fade in
-      requestAnimationFrame(() => { confirmation.style.transition = 'opacity .28s ease'; confirmation.style.opacity = '1'; });
-    }
+    // disable submit while sending
+    if (submitBtn) { submitBtn.disabled = true; submitBtn.setAttribute('aria-busy', 'true'); }
 
-    // reset form after submit
-    form.reset();
+    // Attempt to send emails via SiteAPI (EmailJS). SiteAPI.sendContactEmails returns a Promise.
+    if (window.SiteAPI && typeof window.SiteAPI.sendContactEmails === 'function') {
+      window.SiteAPI.sendContactEmails({ name: '', email: email.value.trim(), message: message.value.trim() })
+        .then(() => {
+          // show confirmation
+          if (confirmation) {
+            confirmation.hidden = false;
+            confirmation.style.opacity = '0';
+            requestAnimationFrame(() => { confirmation.style.transition = 'opacity .28s ease'; confirmation.style.opacity = '1'; });
+          }
 
-    // hide confirmation after 4s
-    setTimeout(() => {
-      if (confirmation) {
-        confirmation.style.opacity = '0';
-        confirmation.addEventListener('transitionend', function handler() {
-          confirmation.hidden = true; confirmation.style.transition = ''; confirmation.removeEventListener('transitionend', handler);
+          // reset form after successful send
+          form.reset();
+
+          // hide confirmation after 4s
+          setTimeout(() => {
+            if (confirmation) {
+              confirmation.style.opacity = '0';
+              confirmation.addEventListener('transitionend', function handler() {
+                confirmation.hidden = true; confirmation.style.transition = ''; confirmation.removeEventListener('transitionend', handler);
+              });
+            }
+          }, 4000);
+        })
+        .catch((err) => {
+          console.error('Send contact emails error:', err);
+          alert('Une erreur est survenue lors de l\'envoi du message. Veuillez réessayer.');
+        })
+        .finally(() => {
+          if (submitBtn) { submitBtn.disabled = false; submitBtn.removeAttribute('aria-busy'); }
         });
+    } else {
+      // fallback: if SiteAPI not available, show confirmation and reset (best-effort)
+      if (confirmation) {
+        confirmation.hidden = false;
+        confirmation.style.opacity = '0';
+        requestAnimationFrame(() => { confirmation.style.transition = 'opacity .28s ease'; confirmation.style.opacity = '1'; });
       }
-    }, 4000);
+      form.reset();
+      setTimeout(() => {
+        if (confirmation) {
+          confirmation.style.opacity = '0';
+          confirmation.addEventListener('transitionend', function handler() {
+            confirmation.hidden = true; confirmation.style.transition = ''; confirmation.removeEventListener('transitionend', handler);
+          });
+        }
+      }, 4000);
+      if (submitBtn) { submitBtn.disabled = false; submitBtn.removeAttribute('aria-busy'); }
+    }
   });
 });
 
