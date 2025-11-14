@@ -362,3 +362,89 @@ document.addEventListener('DOMContentLoaded', () => {
 // OneSignal integration removed. The site retains a simple local toggle handler
 // (which persists `email.enabled` in localStorage) for lightweight UI feedback.
 
+/* ------------------------------------------------------------------
+   PushAlert dynamic loader tied to the #emailToggle
+   - Loads PushAlert script only when user enables the toggle.
+   - Attempts best-effort unsubscribe/unregister when user disables it.
+ ------------------------------------------------------------------ */
+(function () {
+  const TOGGLE_ID = 'emailToggle';
+  const STORAGE_KEY = 'email.enabled'; // reuse existing key used elsewhere in script
+  const SCRIPT_ID = 'pushalert-inject';
+  const SCRIPT_SRC = 'https://cdn.pushalert.co/integrate_413c09932cbafd37bfe7e33cc8beb1ad.js';
+
+  function setToggleUI(checked) {
+    const t = document.getElementById(TOGGLE_ID);
+    if (!t) return;
+    t.checked = !!checked;
+    t.setAttribute('aria-checked', checked ? 'true' : 'false');
+    document.body.classList.toggle('notifications-enabled', !!checked);
+  }
+
+  function injectPushAlertScript() {
+    if (document.getElementById(SCRIPT_ID)) return;
+    const g = document.createElement('script');
+    g.id = SCRIPT_ID;
+    g.type = 'text/javascript';
+    g.async = true;
+    g.src = SCRIPT_SRC;
+    const s = document.getElementsByTagName('script')[0];
+    if (s && s.parentNode) s.parentNode.insertBefore(g, s);
+    else document.head.appendChild(g);
+  }
+
+  async function removePushAlertScriptAndSW() {
+    // remove injected script tag
+    const el = document.getElementById(SCRIPT_ID);
+    if (el) el.remove();
+
+    // best-effort: call unsubscribe if PushAlert exposes it
+    try {
+      if (window.PushAlert && typeof window.PushAlert.unsubscribe === 'function') {
+        window.PushAlert.unsubscribe();
+      }
+    } catch (e) { /* ignore */ }
+
+    // unregister service workers that look like PushAlert's
+    if ('serviceWorker' in navigator) {
+      try {
+        const regs = await navigator.serviceWorker.getRegistrations();
+        for (const r of regs) {
+          try {
+            const url = (r && r.active && r.active.scriptURL) || '';
+            if (url && url.includes('pushalert')) {
+              await r.unregister();
+            }
+          } catch (e) { /* ignore per-reg errors */ }
+        }
+      } catch (e) { /* ignore */ }
+    }
+  }
+
+  document.addEventListener('DOMContentLoaded', () => {
+    const toggle = document.getElementById(TOGGLE_ID);
+    if (!toggle) return;
+
+    // initialize state from localStorage (default: disabled)
+    const saved = localStorage.getItem(STORAGE_KEY);
+    const enabled = saved === '1';
+    setToggleUI(enabled);
+
+    // if previously enabled, inject on load
+    if (enabled) injectPushAlertScript();
+
+    toggle.addEventListener('change', async (e) => {
+      const wantOn = !!e.target.checked;
+      setToggleUI(wantOn);
+
+      if (wantOn) {
+        injectPushAlertScript();
+        try { localStorage.setItem(STORAGE_KEY, '1'); } catch (err) { /* ignore */ }
+      } else {
+        await removePushAlertScriptAndSW();
+        try { localStorage.setItem(STORAGE_KEY, '0'); } catch (err) { /* ignore */ }
+      }
+    });
+  });
+})();
+
