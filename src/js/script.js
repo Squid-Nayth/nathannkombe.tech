@@ -18,6 +18,54 @@ const __ANIM_SPEED_FACTOR = 1.3;
 let __audioUnlocked = false;
 let __faceidSoundQueued = false;
 const __faceidSoundSrc = 'public/sounds/apple-pay.mp3';
+// Notification sound for successful contact form send
+const __notifySoundSrc = 'public/sounds/IPHONE NOTIFICATION SOUND EFFECT (PING_DING).mp3';
+let __notifySoundQueued = false;
+// Create a persistent Audio instance so the file can be preloaded and played
+// instantly when needed.
+const __notifyAudio = new Audio(__notifySoundSrc);
+__notifyAudio.preload = 'auto';
+__notifyAudio.volume = 0.9;
+// Force load early so browser can fetch the file (subject to caching/CSP)
+try { __notifyAudio.load(); } catch (e) { /* ignore */ }
+// Toggle switch sound (play instantly on user toggling notifications)
+const __toggleSoundSrc = 'public/sounds/iPhone Lock - Sound Effect (HD).mp3';
+let __toggleSoundQueued = false;
+const __toggleAudio = new Audio(__toggleSoundSrc);
+__toggleAudio.preload = 'auto';
+__toggleAudio.volume = 0.9;
+try { __toggleAudio.load(); } catch (e) { /* ignore */ }
+
+function _playNotifySound() {
+  try {
+    // Play the preloaded audio instance for lowest latency.
+    try {
+      __notifyAudio.currentTime = 0;
+    } catch (e) { /* ignore if not seekable */ }
+    const p = __notifyAudio.play();
+    if (p && typeof p.catch === 'function') {
+      p.catch((err) => {
+        console.warn('Unable to play notification sound immediately:', err);
+        __notifySoundQueued = true;
+      });
+    }
+  } catch (e) {
+    console.warn('Notification sound error', e);
+  }
+}
+
+function _playToggleSound() {
+  try {
+    try { __toggleAudio.currentTime = 0; } catch (e) {}
+    const p = __toggleAudio.play();
+    if (p && typeof p.catch === 'function') {
+      p.catch((err) => {
+        console.warn('Unable to play toggle sound immediately:', err);
+        __toggleSoundQueued = true;
+      });
+    }
+  } catch (e) { console.warn('Toggle sound error', e); }
+}
 
 function _playFaceIdSound() {
   try {
@@ -111,7 +159,27 @@ document.addEventListener('DOMContentLoaded', () => {
     const enabled = saved === null ? false : saved === '1';
     toggle.checked = enabled;
     toggle.setAttribute('aria-checked', String(enabled));
+    // Prevent double-play: when we play the sound on pointerdown/keydown we set
+    // a small flag so the change handler won't re-trigger it.
+    let __toggleSoundPlayed = false;
+    function markToggleSoundPlayed() {
+      __toggleSoundPlayed = true;
+      setTimeout(() => { __toggleSoundPlayed = false; }, 600);
+    }
 
+    // Play on immediate user press (pointerdown/touchstart) for lowest latency.
+    toggle.addEventListener('pointerdown', (e) => {
+      try { _playToggleSound(); markToggleSoundPlayed(); } catch (err) {}
+    });
+    // Also support keyboard activation (Space / Enter)
+    toggle.addEventListener('keydown', (e) => {
+      if (e.key === ' ' || e.key === 'Spacebar' || e.key === 'Enter') {
+        try { _playToggleSound(); markToggleSoundPlayed(); } catch (err) {}
+      }
+    });
+
+    // The change handler persists the state and provides UI feedback. It will
+    // only play the sound if it wasn't already played on pointerdown/keydown.
     toggle.addEventListener('change', (e) => {
       const on = e.target.checked;
       localStorage.setItem(KEY, on ? '1' : '0');
@@ -121,6 +189,9 @@ document.addEventListener('DOMContentLoaded', () => {
       if (title) {
         title.textContent = on ? 'Vous aimez mon travail ? — notifications activées' : 'Vous aimez mon travail ?';
         setTimeout(() => { if (title) title.textContent = 'Vous aimez mon travail ?'; }, 1400);
+      }
+      if (!__toggleSoundPlayed) {
+        try { _playToggleSound(); } catch (err) {}
       }
     });
   }
@@ -158,7 +229,11 @@ document.addEventListener('DOMContentLoaded', () => {
           if (confirmation) {
             confirmation.hidden = false;
             confirmation.style.opacity = '0';
-            requestAnimationFrame(() => { confirmation.style.transition = 'opacity .28s ease'; confirmation.style.opacity = '1'; });
+            requestAnimationFrame(() => {
+              confirmation.style.transition = 'opacity .28s ease';
+              confirmation.style.opacity = '1';
+              try { _playNotifySound(); } catch (e) { /* ignore */ }
+            });
           }
 
           // reset form after successful send
@@ -226,48 +301,73 @@ document.addEventListener('DOMContentLoaded', () => {
     let holdTimer = null;
     let activePointerId = null;
 
-    function startHold(pointerId) {
-      faceId.classList.add('active');
-      try { _unlockAudioOnce(); } catch (e) {}
-      holdTimer = setTimeout(() => {
-        faceId.classList.add('completed');
-        setTimeout(() => {
-          overlay.classList.add('fade-out');
-          const onFadeEnd = (e) => {
-            if (e.propertyName === 'opacity') {
-              overlay.classList.add('hidden');
-              overlay.classList.remove('fade-out');
-              document.body.classList.remove('overlay-active');
-              overlay.removeEventListener('transitionend', onFadeEnd);
-              try {
-                document.documentElement.classList.remove('animations-paused');
-                document.dispatchEvent(new CustomEvent('faceid:done'));
-                if (__audioUnlocked) _playFaceIdSound(); else __faceidSoundQueued = true;
-              } catch (err) {}
-            }
-          };
-          overlay.addEventListener('transitionend', onFadeEnd);
-        }, dashDuration + 80);
-      }, completeDelay);
-    }
-
     function cancelHold() {
       if (holdTimer) { clearTimeout(holdTimer); holdTimer = null; }
+      faceId.classList.remove('active');
+      faceId.classList.remove('completed');
       activePointerId = null;
+    }
+
+    function finishFlow() {
+      // play the FaceID sound immediately after the tick animation finishes (+2ms)
+      try {
+        setTimeout(() => {
+          try {
+            if (__audioUnlocked) {
+              _playFaceIdSound();
+            } else {
+              // if not unlocked yet, queue for next gesture
+              __faceidSoundQueued = true;
+            }
+          } catch (err) { console.warn('Error playing FaceID sound', err); }
+        }, dashDuration + 2);
+      } catch (e) { /* ignore */ }
+
+      // After the tick animation, wait a bit then fade out the overlay and finish the flow
+      setTimeout(() => {
+        overlay.classList.add('fade-out');
+        const onFadeEnd = (ev) => {
+          if (ev.propertyName === 'opacity') {
+            overlay.classList.add('hidden');
+            overlay.classList.remove('fade-out');
+            document.body.classList.remove('overlay-active');
+            overlay.removeEventListener('transitionend', onFadeEnd);
+            try {
+              document.documentElement.classList.remove('animations-paused');
+              document.dispatchEvent(new CustomEvent('faceid:done'));
+            } catch (err) {}
+          }
+        };
+        overlay.addEventListener('transitionend', onFadeEnd);
+      }, dashDuration + 80);
+
+      // cleanup classes
       faceId.classList.remove('active');
       faceId.classList.remove('completed');
     }
 
+    function startHold(pointerId) {
+      activePointerId = pointerId;
+      faceId.classList.add('active');
+      try { _unlockAudioOnce(); } catch (e) {}
+      holdTimer = setTimeout(() => {
+        // mark completed (trigger tick animation)
+        faceId.classList.add('completed');
+        // then run the finish flow which plays sound and fades overlay
+        finishFlow();
+      }, completeDelay);
+    }
+
     function onPointerDown(e) {
       // Only start if the target is the faceId element (or its children)
-      activePointerId = e.pointerId;
       // prevent default to avoid weird scroll/gesture interactions
       try { e.preventDefault(); } catch (err) {}
-      startHold(activePointerId);
+      startHold(e.pointerId);
     }
 
     function onPointerUp(e) {
-      if (activePointerId === e.pointerId) cancelHold();
+      if (activePointerId === null) return;
+      if (e.pointerId === activePointerId) cancelHold();
     }
 
     faceId.addEventListener('pointerdown', onPointerDown);
