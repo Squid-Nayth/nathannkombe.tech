@@ -11,6 +11,68 @@ document.documentElement.classList.add('animations-paused');
 // slightly. Buttons keep their original timings.
 const __ANIM_SPEED_FACTOR = 1.3;
 
+// Audio unlock state for FaceID sound playback. We attempt to unlock audio
+// on the first user gesture (mouseenter on the FaceID element is considered
+// a user interaction) so that playing the confirmation sound later won't be
+// blocked by autoplay policies.
+let __audioUnlocked = false;
+let __faceidSoundQueued = false;
+const __faceidSoundSrc = 'public/sounds/apple-pay.mp3';
+
+function _playFaceIdSound() {
+  try {
+    const audio = new Audio(__faceidSoundSrc);
+    audio.volume = 0.9;
+    audio.play().catch((err) => {
+      console.warn('Unable to play FaceID sound:', err);
+      // If playback is blocked, queue it for the next user gesture
+      __faceidSoundQueued = true;
+    });
+  } catch (e) {
+    console.warn('FaceID sound error', e);
+  }
+}
+
+function _unlockAudioOnce() {
+  if (__audioUnlocked) return;
+  try {
+    const a = new Audio(__faceidSoundSrc);
+    a.muted = true;
+    const p = a.play();
+    if (p && typeof p.then === 'function') {
+      p.then(() => {
+        try { a.pause(); a.currentTime = 0; } catch (e) {}
+        __audioUnlocked = true;
+        if (__faceidSoundQueued) { __faceidSoundQueued = false; _playFaceIdSound(); }
+      }).catch((err) => {
+        console.warn('Audio unlock attempt failed:', err);
+      });
+    } else {
+      try { a.pause(); a.currentTime = 0; } catch (e) {}
+      __audioUnlocked = true;
+      if (__faceidSoundQueued) { __faceidSoundQueued = false; _playFaceIdSound(); }
+    }
+  } catch (e) {
+    console.warn('Audio unlock setup error', e);
+  }
+}
+
+// Attach gesture listeners as a fallback to unlock audio on first real user
+// interaction (pointerdown/touchstart/keydown). We also call _unlockAudioOnce
+// directly from the FaceID mouseenter handler (below) because that event is
+// already a user gesture.
+function _attachAudioUnlockListeners() {
+  function handler() { try { _unlockAudioOnce(); } finally {
+      document.removeEventListener('pointerdown', handler);
+      document.removeEventListener('touchstart', handler);
+      document.removeEventListener('keydown', handler);
+    }}
+  document.addEventListener('pointerdown', handler, { once: true });
+  document.addEventListener('touchstart', handler, { once: true });
+  document.addEventListener('keydown', handler, { once: true });
+}
+_attachAudioUnlockListeners();
+
 function runAfterFaceID(fn) {
   if (!document.documentElement.classList.contains('animations-paused')) {
     fn();
@@ -157,40 +219,92 @@ document.addEventListener('DOMContentLoaded', () => {
   let timer = null;
   const completeDelay = 1700; // ms
   const dashDuration = 600; // ms (tick animation)
+  const isTouchDevice = ('ontouchstart' in window) || (navigator.maxTouchPoints && navigator.maxTouchPoints > 0);
 
-  faceId.addEventListener('mouseenter', function() {
-    // start the activation
-    this.classList.add('active');
-    // schedule completed state if user stays
-    timer = setTimeout(() => {
-      this.classList.add('completed');
+  if (isTouchDevice) {
+    // Mobile: use pointer events for robust press-and-hold detection (pointerdown -> pointerup).
+    let holdTimer = null;
+    let activePointerId = null;
 
-      // once completed, start overlay fade-out (iOS-like) then hide after transition
-      setTimeout(() => {
-        // start fade-out animation
-        overlay.classList.add('fade-out');
-
-        const onFadeEnd = (e) => {
-          // wait for opacity transition to finish
-          if (e.propertyName === 'opacity') {
-            overlay.classList.add('hidden');
-            overlay.classList.remove('fade-out');
-            document.body.classList.remove('overlay-active');
-            overlay.removeEventListener('transitionend', onFadeEnd);
-
-            // resume animations site-wide and notify waiting code
-            try {
-              document.documentElement.classList.remove('animations-paused');
-              document.dispatchEvent(new CustomEvent('faceid:done'));
-            } catch (err) {
-              // swallow any error — non-critical
+    function startHold(pointerId) {
+      faceId.classList.add('active');
+      try { _unlockAudioOnce(); } catch (e) {}
+      holdTimer = setTimeout(() => {
+        faceId.classList.add('completed');
+        setTimeout(() => {
+          overlay.classList.add('fade-out');
+          const onFadeEnd = (e) => {
+            if (e.propertyName === 'opacity') {
+              overlay.classList.add('hidden');
+              overlay.classList.remove('fade-out');
+              document.body.classList.remove('overlay-active');
+              overlay.removeEventListener('transitionend', onFadeEnd);
+              try {
+                document.documentElement.classList.remove('animations-paused');
+                document.dispatchEvent(new CustomEvent('faceid:done'));
+                if (__audioUnlocked) _playFaceIdSound(); else __faceidSoundQueued = true;
+              } catch (err) {}
             }
-          }
-        };
-        overlay.addEventListener('transitionend', onFadeEnd);
-      }, dashDuration + 80);
-    }, completeDelay);
-  });
+          };
+          overlay.addEventListener('transitionend', onFadeEnd);
+        }, dashDuration + 80);
+      }, completeDelay);
+    }
+
+    function cancelHold() {
+      if (holdTimer) { clearTimeout(holdTimer); holdTimer = null; }
+      activePointerId = null;
+      faceId.classList.remove('active');
+      faceId.classList.remove('completed');
+    }
+
+    function onPointerDown(e) {
+      // Only start if the target is the faceId element (or its children)
+      activePointerId = e.pointerId;
+      // prevent default to avoid weird scroll/gesture interactions
+      try { e.preventDefault(); } catch (err) {}
+      startHold(activePointerId);
+    }
+
+    function onPointerUp(e) {
+      if (activePointerId === e.pointerId) cancelHold();
+    }
+
+    faceId.addEventListener('pointerdown', onPointerDown);
+    // listen on the document to catch pointerup even if the pointer leaves the element
+    document.addEventListener('pointerup', onPointerUp);
+    document.addEventListener('pointercancel', onPointerUp);
+  } else {
+    // Desktop: preserve hover behaviour, no audio
+    let desktopTimer = null;
+    faceId.addEventListener('mouseenter', function () {
+      faceId.classList.add('active');
+      desktopTimer = setTimeout(() => {
+        faceId.classList.add('completed');
+        setTimeout(() => {
+          overlay.classList.add('fade-out');
+          const onFadeEnd = (e) => {
+            if (e.propertyName === 'opacity') {
+              overlay.classList.add('hidden');
+              overlay.classList.remove('fade-out');
+              document.body.classList.remove('overlay-active');
+              overlay.removeEventListener('transitionend', onFadeEnd);
+              try {
+                document.documentElement.classList.remove('animations-paused');
+                document.dispatchEvent(new CustomEvent('faceid:done'));
+              } catch (err) {}
+            }
+          };
+          overlay.addEventListener('transitionend', onFadeEnd);
+        }, dashDuration + 80);
+      }, completeDelay);
+    });
+    faceId.addEventListener('mouseleave', function () {
+      if (desktopTimer) { clearTimeout(desktopTimer); desktopTimer = null; }
+      faceId.classList.remove('active');
+      faceId.classList.remove('completed');
+    });
+  }
 
   faceId.addEventListener('mouseleave', function() {
     // cancel completion if user leaves early

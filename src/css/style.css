@@ -134,7 +134,8 @@ section{scroll-margin-top:calc(var(--nav-height) + 8px)}
   display:inline-flex;
   align-items:center;
   gap:0.6rem;
-  margin:1.25rem auto 0;
+  /* push the CTA a bit lower so it's not too close to the hero title */
+  margin:3.5rem auto 0;
   padding:0.75rem 1.15rem; /* same as .github-cta */
   background: linear-gradient(180deg,#007aff 0%, #0062d6 100%); /* match .download-cv */
   color:#fff;
@@ -205,6 +206,30 @@ section{scroll-margin-top:calc(var(--nav-height) + 8px)}
 .face-id-wrapper{width:100px;height:100px;margin:auto;position:relative}
 .face-id-wrapper svg{position:absolute;fill:transparent;stroke:rgba(255,255,255,0.92);width:100%;height:100%;transition:stroke .25s ease, opacity .25s ease}
 
+/* Small hint shown on mobile to instruct 'press and hold' for sound */
+.faceid-hint{
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%) translateY(18px); /* match reveal-on-scroll starting offset */
+  bottom: -110px; /* moved further down so it's not too close to the animation */
+  color: #e6eef2;
+  background: transparent; /* no surrounding box */
+  padding: 0; /* keep it inline, no extra box spacing */
+  border: none;
+  border-radius: 0;
+  font-size: 0.95rem;
+  font-family: inherit; /* use same font as site */
+  font-weight: 600;
+  white-space: nowrap; /* force a single line */
+  text-align: center;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .90s cubic-bezier(.2,.9,.2,1), transform .90s cubic-bezier(.2,.9,.2,1);
+}
+
+/* We'll use the existing reveal-on-scroll utilities (add .is-visible to show).
+   Remove the overlay-specific override to avoid selector conflicts. */
+
 .face-id-wrapper .circle{border-radius:50%;border:4px solid #000;width:100px;height:100px;background:transparent;box-sizing:border-box;position:absolute;opacity:0;transition:opacity .45s ease, transform 1.2s cubic-bezier(.2,.9,.3,1), border-color .3s ease}
 .face-id-wrapper .circle.green{border-color:#88ef88;box-shadow:0 18px 40px rgba(136,239,136,0.08);background:rgba(136,239,136,0.03)}
 .face-id-wrapper .circle.blue{border-color:#0aaaf7;box-shadow:0 18px 40px rgba(10,170,247,0.08);background:rgba(10,170,247,0.03)}
@@ -237,10 +262,12 @@ body.overlay-active footer{
 @media (max-width:720px){
   .face-id-wrapper{width:80px;height:80px}
   .face-id-wrapper .circle{width:80px;height:80px}
+  /* slightly less offset on small screens so the hint stays visible */
+  .faceid-hint{bottom:-90px; font-size:0.9rem}
 }
 
 /* Intro summary (left text, right video) */
-.intro-summary{padding:4rem 1rem;background:#050505;}
+.intro-summary{padding:4rem 1rem;background:#050505; margin-top:6rem;}
 .intro-inner{max-width:1200px;margin:0 auto;display:flex;gap:2.5rem;align-items:center}
 .intro-left{flex:1;min-width:260px}
 .intro-right{flex:1;display:flex;align-items:center;justify-content:center;position:relative}
@@ -309,6 +336,10 @@ body.overlay-active footer{
   .intro-inner{flex-direction:column}
   .intro-right{order:2}
   .intro-video{height:220px;max-width:100%}
+}
+@media (max-width:720px){
+  /* Reduce the added top spacing on small screens so content isn't pushed too far down */
+  .intro-summary{margin-top:3rem}
 }
 
 /* ---------- Carousels (Outils & Compétences) ---------- */
@@ -893,6 +924,26 @@ button:not(.contact-cta):hover,
 /* Reveal-on-scroll utility */
 .reveal-on-scroll{opacity:0;transform:translateY(18px);transition:opacity .90s cubic-bezier(.2,.9,.2,1), transform .90s cubic-bezier(.2,.9,.2,1);will-change:opacity,transform}
 .reveal-on-scroll.is-visible{opacity:1;transform:none}
+
+/* Custom reveal animation for the FaceID hint: move from bottom -> top
+   while fading in. We use an explicit keyframes animation to avoid
+   transform conflicts with the global .reveal-on-scroll.is-visible rule. */
+@keyframes faceid-hint-reveal {
+  from {
+    transform: translateX(-50%) translateY(22px);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(-50%) translateY(0);
+    opacity: 1;
+  }
+}
+
+.faceid-hint.reveal-on-scroll.is-visible{
+  /* run the custom animation; delay is set via --reveal-delay when present */
+  animation: faceid-hint-reveal .90s cubic-bezier(.2,.9,.2,1) forwards;
+  animation-delay: var(--reveal-delay, 1.5s);
+}
 
 /* Optional stagger support via data-delay (seconds) */
 .reveal-on-scroll[data-delay]{transition-delay:var(--reveal-delay, 0s)}

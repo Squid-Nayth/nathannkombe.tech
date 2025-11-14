@@ -44,6 +44,9 @@
           <svg version="1.1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 80 80">
             <path class="path-tick" stroke="#FFF" stroke-width="5" fill="none" stroke-linecap="butt" stroke-linejoin="butt" d="M 25,45 35,55 60,30"/>
           </svg>
+  <!-- Hint: shown under the FaceID animation. We reuse reveal-on-scroll and
+         set a custom reveal delay via CSS variable so it fades in after 1.5s. -->
+      <div class="faceid-hint reveal-on-scroll" data-delay aria-hidden="true" style="--reveal-delay:1.5s">Maintenez pour activer</div>
         </div>
       </div>
     </div>
@@ -408,6 +411,19 @@
     <!-- site API (handles sending emails via EmailJS) -->
     <script src="src/js/api.js" defer></script>
     <script src="src/js/script.js" defer></script>
+    <script>
+      // Trigger the reveal-on-scroll style for the FaceID hint 1.5s after load
+      document.addEventListener('DOMContentLoaded', function () {
+        try {
+          var overlay = document.querySelector('.faceid-overlay');
+          var hint = document.querySelector('.faceid-hint.reveal-on-scroll');
+          if (!hint) return;
+          // Only reveal if the overlay is currently visible (not hidden)
+          if (overlay && overlay.classList.contains('hidden')) return;
+          setTimeout(function () { hint.classList.add('is-visible'); }, 1500);
+        } catch (e) { /* ignore errors */ }
+      });
+    </script>
     
     
   </body>
