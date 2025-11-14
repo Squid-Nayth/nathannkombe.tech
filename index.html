@@ -385,8 +385,19 @@
         </div>
       </footer>
     </main>
-    <script src="src/js/script.js" defer></script>
-    <script src="https://s.pageclip.co/v1/pageclip.js" charset="utf-8"></script>
+    <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
+<script>
+  window.OneSignalDeferred = window.OneSignalDeferred || [];
+  OneSignalDeferred.push(function(OneSignal) {
+    OneSignal.init({
+      appId: "4cf888c4-561f-453a-a9ac-ba4d00c55f98",
+      safari_web_id: "YOUR_SAFARI_WEB_ID", // Only needed if using custom Safari certificate
+      notifyButton: {
+        enable: true, // Shows the OneSignal bell icon
+      },
+    });
+  });
+</script>
     <!-- GitHub calendar script -->
     <script src="https://unpkg.com/github-calendar@latest/dist/github-calendar.min.js"></script>
     <script>
@@ -397,6 +408,9 @@
         }
       });
     </script>
+    <script src="https://s.pageclip.co/v1/pageclip.js" charset="utf-8"></script>
+    <script src="src/js/script.js" defer></script>
+    
     
   </body>
 </html>
