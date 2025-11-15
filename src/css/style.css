@@ -561,7 +561,7 @@ body.overlay-active footer{
 .github-calendar-card .calendar rect{rx:2; ry:2; stroke:rgba(0,0,0,0.35); stroke-width:0.6px}
 
 /* Legend: present small boxes matching colors */
-.github-calendar-card .contrib-legend{display:flex;align-items:center;gap:0.75rem;color:#9ca3af}
+.github-calendar-card .contrib-legend{display:flex;align-items:center;justify-content:center;gap:0.75rem;color:#9ca3af;width:100%}
 .github-calendar-card .contrib-legend .legend-swatch{width:12px;height:12px;border-radius:3px;display:inline-block}
 .github-calendar-card .contrib-legend .sw-0{background:rgba(255,255,255,0.03)}
 .github-calendar-card .contrib-legend .sw-1{background:#064e3b}
@@ -1050,4 +1050,55 @@ a:hover, button:hover, .btn:hover, .project-cta:hover, .download-cv:hover, .gith
 @media (max-width:420px){
   .contact-cta{box-shadow:none}
   .github-cta{box-shadow:none}
+}
+
+/* Improve touch/mobile UX: reduce hover/transform effects and disable particle canvas on touch devices
+   - (pointer:coarse) typically matches phones & tablets with touch input
+   - (hover: none) matches devices that don't support hover
+   These rules keep visual polish on desktop while avoiding jumpy/teleporting particles and
+   large hover transforms on touch scroll. */
+@media (hover: none), (pointer: coarse) {
+  /* Disable hover transforms/shadows on touch devices to avoid visual jumps */
+  a:hover, button:hover, .btn:hover, .project-cta:hover, .download-cv:hover, .github-cta:hover, .btn:not(.contact-cta):hover, .contact-cta:hover {
+    transform: none !important;
+    filter: none !important;
+    box-shadow: none !important;
+  }
+
+  /* Make CTAs slightly larger/tap-friendly and reduce padding so they wrap nicely */
+  .contact-cta, .project-cta, .github-cta, .download-cv, .btn-send {
+    padding: 0.6rem 0.9rem !important;
+    font-size: 0.98rem !important;
+    border-radius: 10px !important;
+    -webkit-tap-highlight-color: rgba(0,0,0,0);
+  }
+
+  /* Ensure buttons don't cause layout shifts on active/tap */
+  .contact-cta:active, .project-cta:active, .btn-send:active {
+    transform: none !important;
+  }
+
+  /* Hide the particle canvas on coarse-pointer devices to prevent teleport/jump issues during touch scroll */
+  .hero-network {
+    display: none !important;
+    visibility: hidden !important;
+    opacity: 0 !important;
+    pointer-events: none !important;
+    width: 0 !important; /* avoid layout differences */
+    height: 0 !important;
+  }
+
+  /* Reduce heavy decorative pseudo-elements that can overlap/touch on small screens */
+  .contact-cta::before, .project-cta::before, .github-cta::before {
+    display: none !important;
+  }
+}
+
+/* Extra small screens: ensure buttons fit and text wraps without overflow */
+@media (max-width:360px) {
+  .contact-cta, .project-cta, .github-cta {
+    font-size: 0.92rem !important;
+    padding: 0.48rem 0.72rem !important;
+  }
+  .hero-heading{font-size:clamp(1.2rem,9.5vw,2.2rem)}
 }
