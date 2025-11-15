@@ -1,4 +1,3 @@
-/* Simple CSS-only typewriter effect and centered layout */
 * {
   box-sizing: border-box;
   margin: 0;
@@ -7,39 +6,26 @@
 html,
 body {
   height: 100%;
-  /* Strong fallback background to avoid white flash when overscrolling */
   background-color: #000;
-  /* Prevent scroll chaining / overscroll bounce where supported */
   overscroll-behavior: none;
 }
-/* Ensure the document root has the same dark background so overscroll
-   (rubber-banding) doesn't reveal a white page beneath. */
 html{
-  /* Ensure the root has a matching background so any overscroll reveals
-     the same dark color instead of white. The gradient is the visual
-     design, `background-color` is the fallback to prevent white edges. */
   background-color: #000;
   background: linear-gradient(180deg, #050505 0%, #0b0b0b 100%);
   overscroll-behavior: none;
 }
 body {
-  /* Keep the same gradient visual but strongly prefer a solid black
-    fallback to ensure no white is visible during overscroll. */
   background-color: #000;
   background: linear-gradient(180deg, #050505 0%, #0b0b0b 100%);
   color: #fff;
 
-  /* Ensure body fills viewport and the background is fixed so overscroll
-    (rubber-banding) doesn't reveal a white page beneath. */
   min-height: 100vh;
   background-attachment: fixed;
-  /* Disable overscroll behavior (where supported) to avoid bounce/white edges */
   overscroll-behavior: none;
   font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
   line-height: 1.4;
 }
 
-/* ---------- Top navigation (inspired by attachment) ---------- */
 .site-nav{
   position:fixed;
   top:0;left:0;right:0;
@@ -61,7 +47,6 @@ body {
 .nav-cta{margin-left:6px;padding:6px 10px;border-radius:999px;background:transparent;border:1px solid rgba(255,255,255,0.06);color:#fff;font-weight:700;text-decoration:none}
 .nav-bubble{margin-left:8px;padding:6px 12px;border-radius:999px;background:#007aff;color:#fff;text-decoration:none;font-weight:800;box-shadow:0 8px 22px rgba(0,122,255,0.12)}
 
-/* Ensure content is not hidden under the fixed nav */
 main{padding-top:64px}
 
 @media (max-width:880px){
@@ -71,17 +56,14 @@ main{padding-top:64px}
   .nav-right{gap:8px}
 }
 
-/* Mobile nav: hide desktop icons/links and show a kebab toggle */
 .mobile-nav-toggle{display:none;border:0;background:transparent;padding:6px;border-radius:8px}
 .mobile-nav-toggle img{width:18px;height:18px;filter:invert(1) brightness(1)}
 
 @media (max-width:720px){
-  /* hide the full nav on small screens */
   .nav-right{display:none}
   .mobile-nav-toggle{display:inline-flex;align-items:center;justify-content:center}
 }
 
-/* Slide-in sidebar */
 .mobile-nav-backdrop{position:fixed;inset:0;background:rgba(0,0,0,0.45);z-index:1200;opacity:0;pointer-events:none;transition:opacity .24s ease}
 .mobile-nav-backdrop[hidden]{display:none}
 .mobile-sidebar{position:fixed;top:0;right:0;height:100%;width:84%;max-width:320px;background:linear-gradient(180deg,#070707,#0b0b0b);z-index:1250;box-shadow: -8px 0 30px rgba(0,0,0,0.6);transform:translateX(110%);transition:transform .32s cubic-bezier(.2,.9,.2,1);padding:2.2rem 1.25rem;display:flex;flex-direction:column;gap:1rem}
@@ -92,18 +74,12 @@ main{padding-top:64px}
 .mobile-sidebar a:hover{background:rgba(255,255,255,0.02)}
 .mobile-sidebar.open{transform:translateX(0)}
 .mobile-nav-backdrop.open{opacity:1;pointer-events:auto}
-/* Smooth scroll for in-page links and offset to account for fixed nav */
 html{scroll-behavior:smooth}
 :root{--nav-height:64px}
-/* Add a margin so anchored headings aren't hidden under the fixed nav */
 section{scroll-margin-top:calc(var(--nav-height) + 8px)}
 
 
-/* Hero landing inspired by the image */
 .hero{
-  /* Ensure the hero fills the viewport under the fixed nav so the next
-     section (intro) isn't visible on initial load. Uses the --nav-height
-     variable defined in :root for consistency. */
   min-height: calc(100vh - var(--nav-height));
   display:flex;
   align-items:center;
@@ -118,7 +94,6 @@ section{scroll-margin-top:calc(var(--nav-height) + 8px)}
   padding:0 1rem;
 }
 
-/* Particle background canvas inside the hero section */
 .hero { position: relative; }
 .hero-network {
   position: absolute;
@@ -149,11 +124,9 @@ section{scroll-margin-top:calc(var(--nav-height) + 8px)}
   word-break:break-word;
 }
 
-/* Hero popper words */
 .hero-heading .hero-word{display:inline-block;opacity:0;transform:translateY(18px) scale(.98);transition:transform .60s cubic-bezier(.2,.9,.25,1), opacity .50s ease;will-change:transform,opacity}
 .hero-heading .hero-word.is-visible{opacity:1;transform:translateY(0) scale(1)}
 
-/* Contact CTA entrance when hero finishes */
 .contact-cta{opacity:0;transform:translateY(8px);transition:opacity .4s ease, transform .36s cubic-bezier(.2,.9,.25,1)}
 .contact-cta.is-visible{opacity:1;transform:none}
 
@@ -176,7 +149,6 @@ section{scroll-margin-top:calc(var(--nav-height) + 8px)}
 
 
 
-/* Contact CTA inside hero (rounded blue panel with comment icon + halo) */
 .contact-cta{
   display:inline-flex;
   align-items:center;
@@ -206,7 +178,6 @@ section{scroll-margin-top:calc(var(--nav-height) + 8px)}
 .contact-cta:active{transform:translateY(-1px)}
 .contact-cta:focus{outline:2px solid rgba(255,255,255,0.08);outline-offset:3px}
 
-/* soft radial halo behind the button to mimic the supplied lighting */
 .contact-cta::before{
   content:"";
   position:absolute;
@@ -228,7 +199,6 @@ section{scroll-margin-top:calc(var(--nav-height) + 8px)}
   .contact-cta::before{width:180px;height:56px}
 }
 
-/* Face ID overlay styles */
 .faceid-overlay{
   position:fixed;
   inset:0;
@@ -257,17 +227,17 @@ section{scroll-margin-top:calc(var(--nav-height) + 8px)}
 .faceid-hint{
   position: absolute;
   left: 50%;
-  transform: translateX(-50%) translateY(18px); /* match reveal-on-scroll starting offset */
-  bottom: -110px; /* moved further down so it's not too close to the animation */
+  transform: translateX(-50%) translateY(18px);
+  bottom: -110px;
   color: #e6eef2;
-  background: transparent; /* no surrounding box */
-  padding: 0; /* keep it inline, no extra box spacing */
+  background: transparent;
+  padding: 0;
   border: none;
   border-radius: 0;
   font-size: 0.95rem;
-  font-family: inherit; /* use same font as site */
+  font-family: inherit;
   font-weight: 600;
-  white-space: nowrap; /* force a single line */
+  white-space: nowrap;
   text-align: center;
   opacity: 0;
   pointer-events: none;
@@ -294,10 +264,8 @@ section{scroll-margin-top:calc(var(--nav-height) + 8px)}
 
 @keyframes dash{0%{stroke-dashoffset:49.497474670410156;stroke-opacity:1}60%{stroke-dashoffset:49.497474670410156}100%{stroke-dashoffset:0;stroke-opacity:1}}
 
-/* Blur the background content while overlay is active */
 body.overlay-active main,
 body.overlay-active footer{
-  /* hide underlying content completely while overlay is active */
   opacity:0;
   transform:scale(0.998);
   transition:opacity .2s ease, transform .2s ease;
@@ -305,7 +273,6 @@ body.overlay-active footer{
   user-select:none;
 }
 
-/* small responsive tweak */
 @media (max-width:720px){
   .face-id-wrapper{width:80px;height:80px}
   .face-id-wrapper .circle{width:80px;height:80px}
@@ -313,7 +280,6 @@ body.overlay-active footer{
   .faceid-hint{bottom:-90px; font-size:0.9rem}
 }
 
-/* Intro summary (left text, right video) */
 .intro-summary{padding:4rem 1rem;background:#050505; margin-top:6rem;}
 .intro-inner{max-width:1200px;margin:0 auto;display:flex;gap:2.5rem;align-items:center}
 .intro-left{flex:1;min-width:260px}
@@ -333,9 +299,6 @@ body.overlay-active footer{
   image-rendering: auto;
 }
 
-/* Wrapper that creates a blurred, color-matching background using the same image
-   The ::before uses the image as a background, is blurred, slightly scaled and saturated
-   so the halo picks up the dominant colors from the image. The real image sits above it. */
 .intro-right{position:relative;display:flex;align-items:center;justify-content:center}
 .intro-image-wrap{position:relative;display:inline-flex;flex-direction:column;align-items:center;gap:.5rem;overflow:visible}
 .intro-image-wrap::before{
@@ -356,7 +319,6 @@ body.overlay-active footer{
 }
 .intro-image{position:relative;z-index:2;border-radius:0;box-shadow:none}
 
-/* Download CV button under image, Apple-like blue */
 .download-cv{
   --btn-shift: -4px; /* tweak this value to adjust horizontal centering */
   display:inline-flex;
@@ -389,7 +351,6 @@ body.overlay-active footer{
   .intro-summary{margin-top:3rem}
 }
 
-/* ---------- Carousels (Outils & Compétences) ---------- */
 :root{--carousel-slide-w:140px;--carousel-slide-h:96px;--carousel-visible-w:960px;--carousel-speed:52s}
 .carousel-section{padding:2.5rem 1rem;background:transparent}
 .carousel-inner{max-width:1100px;margin:0 auto}
@@ -419,13 +380,11 @@ body.overlay-active footer{
   .carousel-slider::before,.carousel-slider::after{width:90px}
 }
 
-/* Pause carousels on hover and when focused (accessibility) */
 .carousel-slider:hover .slide-track,
 .carousel-slider:focus-within .slide-track {
   animation-play-state: paused !important;
 }
 
-/* allow users to pause animation with keyboard focus on slides */
 .carousel-slider .slide:focus-within ~ .slide-track,
 .carousel-slider .slide:focus {
   outline: none;
@@ -447,15 +406,12 @@ body.overlay-active footer{
 .formation-degree{color:#111827;opacity:0.85;margin-top:4px}
 .formation-dates{color:#9ca3af;margin-top:6px}
 
-/* status badge that looks like a non-clickable button */
-/* status badge removed - styles cleared */
 
 /* dark-mode adjustments: text should be visible on the site's dark background */
 .formation-inner h2{color:#fff}
 .formation-school{color:#fff}
 .formation-degree{color:#d1d5db}
 
-/* Hover: décalage vers la droite + surbrillance fluide (fade-in) */
 .formation-list .formation-item{
   position:relative; /* nécessaire pour le pseudo-élément */
   border-radius:12px;
@@ -487,7 +443,6 @@ body.overlay-active footer{
   transform: scale(1.02);
 }
 
-/* Assurer que le contenu interne reste au-dessus du pseudo-élément */
 .formation-list .formation-item > *{position:relative;z-index:1}
 
 @media (max-width:720px){
@@ -543,11 +498,6 @@ body.overlay-active footer{
   .experience-list .experience-item:focus-within{transform:translateX(8px)}
 }
 
-/* ----- Override spécifique pour le Stage (2ᵉ .experience-item) -----
-   Empêche uniquement la translation horizontal au survol/focus pour cet
-   élément tout en conservant la pseudo-surbrillance (::after). Utilise
-   un sélecteur plus spécifique pour écraser la règle générale.
-*/
 .experience-list .experience-item:nth-of-type(2):hover,
 .experience-list .experience-item:nth-of-type(2):focus-within{
   transform: none !important;
@@ -562,9 +512,6 @@ body.overlay-active footer{
   }
 }
 
-/* Disable horizontal translation for items that explicitly opt-out by
-   adding the `no-reveal` class. Keep the pseudo-highlight (::after) and
-   shadows but prevent the translateX shift on hover/focus. */
 .experience-list .experience-item.no-reveal:hover,
 .experience-list .experience-item.no-reveal:focus-within {
   transform: none !important;
@@ -584,7 +531,7 @@ body.overlay-active footer{
 .contributions-inner{max-width:1100px;margin:0 auto;text-align:center}
 .contributions-inner h2{font-size:2rem;margin-bottom:6px;display:inline-flex;align-items:center;gap:0.8rem}
 .contrib-sub{color:#9ca3af;margin-bottom:1.25rem}
-.github-calendar-card{background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));padding:1.6rem;border-radius:12px;box-shadow:0 10px 30px rgba(0,0,0,0.6);border:1px solid rgba(255,255,255,0.03);display:flex;flex-direction:column;align-items:center;gap:1rem}
+.github-calendar-card{background:linear-gradient(180deg,#0b0b0b 0%, #070707 100%);border:1px solid rgba(255,255,255,0.04);box-shadow:0 18px 50px rgba(2,6,23,0.7);padding:2rem}
 .github-calendar-card .calendar{width:100%;max-width:1000px}
 .contrib-legend{color:#9ca3af;margin-top:6px;font-weight:500}
 .github-cta{display:inline-flex;align-items:center;gap:0.6rem;margin-top:0.9rem;padding:0.75rem 1.15rem;background: rgba(12,14,16,0.6); color:#fff; text-decoration:none; border:1px solid rgba(255,255,255,0.06); border-radius:10px; font-weight:700; box-shadow: inset 0 1px 0 rgba(255,255,255,0.02), 0 8px 22px rgba(2,6,23,0.6); position:relative; z-index:2}
@@ -667,7 +614,6 @@ body.overlay-active footer{
 }
 .project-cta img{width:16px;height:16px;display:block;filter:invert(1);}
 .project-cta:hover{
-  /* subtler lift for project buttons (kept for backwards compatibility) */
   transform:translateY(-1px);
   filter:brightness(1.01);
 }
@@ -711,7 +657,6 @@ body.overlay-active footer{
 .btn-send{background:#10b981;color:#021;border:none;padding:0.8rem 1.25rem;border-radius:10px;font-weight:700;box-shadow:0 8px 24px rgba(16,185,129,0.12);cursor:pointer;display:inline-flex;align-items:center;gap:0.6rem}
 .btn-send img{width:18px;height:18px;display:block;filter:invert(1) drop-shadow(0 6px 18px rgba(16,185,129,0.12))}
 .btn-send:hover{
-  /* legacy: specific rule kept but will be overridden by the general rule below */
   transform:translateY(-1px);
   filter:brightness(1.02);
 }
@@ -729,7 +674,6 @@ button:not(.contact-cta):hover,
 }
 .btn-send:active{transform:translateY(-1px)}
 
-/* Disabled state: visually grayed out and non-interactive */
 .btn-send[disabled], .btn-send[aria-disabled="true"] {
   opacity: 0.45;
   filter: none;
@@ -988,20 +932,16 @@ button:not(.contact-cta):hover,
   }
 }
 
-/* reduced motion */
 @media (prefers-reduced-motion: reduce) {
   .avatar {
     transition: none;
   }
   }
 
-/* Reveal-on-scroll utility */
 .reveal-on-scroll{opacity:0;transform:translateY(18px);transition:opacity .90s cubic-bezier(.2,.9,.2,1), transform .90s cubic-bezier(.2,.9,.2,1);will-change:opacity,transform}
 .reveal-on-scroll.is-visible{opacity:1;transform:none}
 
-/* Custom reveal animation for the FaceID hint: move from bottom -> top
-   while fading in. We use an explicit keyframes animation to avoid
-   transform conflicts with the global .reveal-on-scroll.is-visible rule. */
+
 @keyframes faceid-hint-reveal {
   from {
     transform: translateX(-50%) translateY(22px);
@@ -1014,26 +954,21 @@ button:not(.contact-cta):hover,
 }
 
 .faceid-hint.reveal-on-scroll.is-visible{
-  /* run the custom animation; delay is set via --reveal-delay when present */
   animation: faceid-hint-reveal .90s cubic-bezier(.2,.9,.2,1) forwards;
   animation-delay: var(--reveal-delay, 1.5s);
 }
 
-/* Optional stagger support via data-delay (seconds) */
 .reveal-on-scroll[data-delay]{transition-delay:var(--reveal-delay, 0s)}
 
 @media (prefers-reduced-motion: reduce){
   .reveal-on-scroll{transition:none;opacity:1;transform:none}
 }
 
-/* When the face-id overlay is active, keep major CSS animations paused so the
-   site doesn't animate before the user completes the intro interaction. The
-   JS will toggle the `animations-paused` class on the root element. */
+
 .animations-paused .slide-track { animation-play-state: paused !important }
 .animations-paused .slide-track * { animation-play-state: paused !important }
 .animations-paused .typewriter-name { animation-play-state: paused !important }
 
-/* Typewriter effect for profile name */
 .typewriter-name{display:inline-block;white-space:nowrap;overflow:hidden;border-right:.12em solid currentColor;padding-right:.1ch;--chars:13ch;width:0ch;animation:typing 2s steps(13,end) forwards, blink-caret .7s step-end infinite}
 @keyframes typing{from{width:0ch}to{width:var(--chars)}}
 @keyframes blink-caret{50%{border-color:transparent}}
@@ -1048,11 +983,7 @@ button:not(.contact-cta):hover,
   }
 }
 
-/* ------------------------------------------------------------------
-   Unified hover: apply the Contact CTA hover animation to all buttons
-   and anchors so they share the same pronounced lift/scale/halo.
-   This intentionally makes the hover visual consistent across the site.
-   ------------------------------------------------------------------ */
+
 a, button, .btn, .project-cta, .download-cv, .github-cta, .btn-send {
   transition: transform .18s ease, filter .12s ease, box-shadow .18s ease;
 }
@@ -1063,13 +994,7 @@ a:hover, button:hover, .btn:hover, .project-cta:hover, .download-cv:hover, .gith
   box-shadow: 0 14px 34px rgba(0,122,255,0.18);
 }
 
-/* ------------------------------------------------------------------
-   Additional responsive tweaks (global):
-   These media queries refine spacing, font sizes and layout for tablet
-   and mobile so the page remains readable and usable on small screens.
-   ------------------------------------------------------------------ */
 
-/* Tablet-ish: <= 1024px */
 @media (max-width:1024px) {
   .hero{padding:5vh 1rem}
   .hero-inner{padding:0 0.75rem}
@@ -1079,7 +1004,6 @@ a:hover, button:hover, .btn:hover, .project-cta:hover, .download-cv:hover, .gith
   .projects-grid{gap:1rem}
 }
 
-/* Narrow tablets / large phones: <= 880px (many rules already exist, we refine) */
 @media (max-width:880px){
   .nav-inner{padding:0 10px}
   .hero{padding:4.5vh 0.9rem}
@@ -1091,7 +1015,6 @@ a:hover, button:hover, .btn:hover, .project-cta:hover, .download-cv:hover, .gith
   .project-media{height:180px}
 }
 
-/* Mobile: <= 720px — stacked layouts and reduced paddings */
 @media (max-width:720px){
   html,body{font-size:15.5px}
   .site-nav{height:56px;padding:0 0.6rem}
@@ -1111,7 +1034,6 @@ a:hover, button:hover, .btn:hover, .project-cta:hover, .download-cv:hover, .gith
   .faceid-hint{bottom:-78px;font-size:0.9rem}
 }
 
-/* Small mobile: <= 480px — final squeezes */
 @media (max-width:480px){
   html,body{font-size:15px}
   .site-title{font-size:0.92rem}
@@ -1125,7 +1047,6 @@ a:hover, button:hover, .btn:hover, .project-cta:hover, .download-cv:hover, .gith
   .mobile-sidebar{padding:1.6rem 1rem}
 }
 
-/* Utility: reduce heavy shadows on super-small screens to improve contrast */
 @media (max-width:420px){
   .contact-cta{box-shadow:none}
   .github-cta{box-shadow:none}

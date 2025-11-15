@@ -1,4 +1,4 @@
-// Particle background scoped to the hero section
+// Particle background
 document.addEventListener('DOMContentLoaded', function () {
   const canvas = document.getElementById('hero-network');
   if (!canvas) return; // nothing to do if hero canvas not present

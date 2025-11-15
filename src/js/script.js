@@ -1,10 +1,5 @@
-// Consolidated script: gate site animations behind the Face ID flow so no
-// animations (carousels, hero popper, typewriter, reveal-on-scroll) start
-// until the face-id interaction completes.
-
-// Add a flag to pause CSS animations site-wide. This runs as the script is
-// parsed (defer scripts run before DOMContentLoaded) so CSS rules can target
-// the presence of this class and pause animations.
+// Script: gate animations behind FaceID; manage audio, UI and reveal flows.
+// Pause animations until FaceID flow completes.
 document.documentElement.classList.add('animations-paused');
 
 // Global speed factor for non-button animations. Increase to slow animations
@@ -17,7 +12,7 @@ const __ANIM_SPEED_FACTOR = 1.3;
 // blocked by autoplay policies.
 let __audioUnlocked = false;
 let __faceidSoundQueued = false;
-let __userInteracted = false; // becomes true after first real user gesture (pointerdown/touchstart/keydown)
+let __userInteracted = false; // true after first user gesture
 const __faceidSoundSrc = 'public/sounds/apple-pay.mp3';
 // Notification sound for successful contact form send
 const __notifySoundSrc = 'public/sounds/IPHONE NOTIFICATION SOUND EFFECT (PING_DING).mp3';
@@ -28,14 +23,14 @@ const __notifyAudio = new Audio(__notifySoundSrc);
 __notifyAudio.preload = 'auto';
 __notifyAudio.volume = 0.9;
 // Force load early so browser can fetch the file (subject to caching/CSP)
-try { __notifyAudio.load(); } catch (e) { /* ignore */ }
+  try { __notifyAudio.load(); } catch (e) { /* ignore */ }
 // Toggle switch sound (play instantly on user toggling notifications)
 const __toggleSoundSrc = 'public/sounds/iPhone Lock - Sound Effect (HD).mp3';
 let __toggleSoundQueued = false;
 const __toggleAudio = new Audio(__toggleSoundSrc);
 __toggleAudio.preload = 'auto';
 __toggleAudio.volume = 0.9;
-try { __toggleAudio.load(); } catch (e) { /* ignore */ }
+  try { __toggleAudio.load(); } catch (e) { /* ignore */ }
 
 function _playNotifySound() {
   try {
@@ -50,9 +45,7 @@ function _playNotifySound() {
         __notifySoundQueued = true;
       });
     }
-  } catch (e) {
-    console.warn('Notification sound error', e);
-  }
+  } catch (e) { console.warn('Notification sound error', e); }
 }
 
 function _playToggleSound() {
@@ -73,7 +66,7 @@ function _playFaceIdSound() {
     const audio = new Audio(__faceidSoundSrc);
     audio.volume = 0.9;
     try { window.__lastFaceIdAudio = audio; } catch (e) { /* ignore */ }
-    // Do not attempt to play until the user has interacted with the document.
+    // Do not attempt to play until the user has interacted.
     if (!__userInteracted) {
       __faceidSoundQueued = true;
       return audio;
@@ -110,9 +103,7 @@ function _unlockAudioOnce() {
       __audioUnlocked = true;
       if (__faceidSoundQueued) { __faceidSoundQueued = false; _playFaceIdSound(); }
     }
-  } catch (e) {
-    console.warn('Audio unlock setup error', e);
-  }
+    } catch (e) { console.warn('Audio unlock setup error', e); }
 }
 
 // Background music: looped track that should start after FaceID + apple-pay
@@ -144,9 +135,7 @@ function _startBackgroundMusic() {
         __bgMusicQueued = true;
       });
     }
-  } else {
-    __bgMusicQueued = true;
-  }
+  } else { __bgMusicQueued = true; }
 }
 
 // When FaceID finishes, start background music after the face-id audio ends
@@ -155,16 +144,12 @@ document.addEventListener('faceid:done', function () {
     const startIfReady = function () { try { _startBackgroundMusic(); } catch (e) {} };
     const last = window.__lastFaceIdAudio;
     if (last && typeof last.addEventListener === 'function') {
-      if (last.ended) {
-        startIfReady();
-      } else {
+      if (last.ended) startIfReady();
+      else {
         last.addEventListener('ended', startIfReady, { once: true });
-        // fallback: start after 8s if ended never fires
         setTimeout(startIfReady, 8000);
       }
-    } else {
-      startIfReady();
-    }
+    } else startIfReady();
   } catch (e) { console.warn('Error starting background music after faceid', e); }
 });
 
@@ -202,11 +187,8 @@ function _attachAudioUnlockListeners() {
 _attachAudioUnlockListeners();
 
 function runAfterFaceID(fn) {
-  if (!document.documentElement.classList.contains('animations-paused')) {
-    fn();
-  } else {
-    document.addEventListener('faceid:done', fn, { once: true });
-  }
+  if (!document.documentElement.classList.contains('animations-paused')) fn();
+  else document.addEventListener('faceid:done', fn, { once: true });
 }
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -218,11 +200,11 @@ document.addEventListener('DOMContentLoaded', () => {
     const len = Math.max(1, text.length);
     el.style.setProperty('--chars', `${len}ch`);
 
-    if (prefersReduced) {
+  if (prefersReduced) {
       el.style.width = `${len}ch`;
       el.style.borderRight = 'transparent';
     } else {
-      // start animation only after face-id finishes
+      // start animation after FaceID
       runAfterFaceID(() => {
         const base = Math.min(6, Math.max(1.2, len * 0.12));
         const duration = Math.min(6 * __ANIM_SPEED_FACTOR, Math.max(1.2 * __ANIM_SPEED_FACTOR, base * __ANIM_SPEED_FACTOR));
@@ -239,15 +221,14 @@ document.addEventListener('DOMContentLoaded', () => {
     const enabled = saved === null ? false : saved === '1';
     toggle.checked = enabled;
     toggle.setAttribute('aria-checked', String(enabled));
-    // Prevent double-play: when we play the sound on pointerdown/keydown we set
-    // a small flag so the change handler won't re-trigger it.
+  // Prevent double-play: when sound played on pointerdown/keydown set flag
     let __toggleSoundPlayed = false;
     function markToggleSoundPlayed() {
       __toggleSoundPlayed = true;
       setTimeout(() => { __toggleSoundPlayed = false; }, 600);
     }
 
-    // Play on immediate user press (pointerdown/touchstart) for lowest latency.
+    // Play on immediate user press for lowest latency.
     toggle.addEventListener('pointerdown', (e) => {
       try { _playToggleSound(); markToggleSoundPlayed(); } catch (err) {}
     });
@@ -258,21 +239,18 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     });
 
-    // The change handler persists the state and provides UI feedback. It will
-    // only play the sound if it wasn't already played on pointerdown/keydown.
+  // Change handler: persist state and play feedback sound if needed.
     toggle.addEventListener('change', (e) => {
       const on = e.target.checked;
       localStorage.setItem(KEY, on ? '1' : '0');
       toggle.setAttribute('aria-checked', String(on));
-      // brief label feedback
+  // brief label feedback
       const title = document.querySelector('.contact-title');
       if (title) {
         title.textContent = on ? 'Vous aimez mon travail ? — notifications activées' : 'Vous aimez mon travail ?';
         setTimeout(() => { if (title) title.textContent = 'Vous aimez mon travail ?'; }, 1400);
       }
-      if (!__toggleSoundPlayed) {
-        try { _playToggleSound(); } catch (err) {}
-      }
+      if (!__toggleSoundPlayed) try { _playToggleSound(); } catch (err) {}
     });
   }
 });
@@ -288,11 +266,11 @@ document.addEventListener('DOMContentLoaded', () => {
   const submitBtn = form.querySelector('.btn-send');
   if (!email || !message || !submitBtn) return;
 
-  // Track whether a field was touched (blur) so we only show native bubbles after blur/submit
+  // Track touched fields to control when to show native validation bubbles
   let touchedEmail = false;
   let touchedMessage = false;
 
-  // Utility: update submit button enabled state based on validity
+  // Update submit button enabled state based on simple validity checks
   function updateSubmitState() {
     const okEmail = email.value.trim() !== '' && email.value.includes('@');
     const okMessage = message.value.trim() !== '';
@@ -301,7 +279,7 @@ document.addEventListener('DOMContentLoaded', () => {
     submitBtn.setAttribute('aria-disabled', String(!enabled));
   }
 
-  // Per-field validation using native setCustomValidity + reportValidity when requested
+  // Per-field validation using setCustomValidity + optional reportValidity
   function validateEmail(showBubble) {
     const val = email.value.trim();
     if (val === '') {
@@ -329,7 +307,7 @@ document.addEventListener('DOMContentLoaded', () => {
     return true;
   }
 
-  // Wire events: input -> live state update (no bubbles), blur -> validate + show bubble if invalid
+  // Wire events: input updates state; blur validates and may show bubble
   email.addEventListener('input', function () { validateEmail(false); updateSubmitState(); });
   message.addEventListener('input', function () { validateMessage(false); updateSubmitState(); });
 
@@ -340,21 +318,21 @@ document.addEventListener('DOMContentLoaded', () => {
   updateSubmitState();
 
   form.addEventListener('submit', (e) => {
-    // On submit, show browser bubbles for any invalid fields
+  // On submit, show browser bubbles for invalid fields and send via SiteAPI
     const okEmail = validateEmail(true);
     const okMessage = validateMessage(true);
     updateSubmitState();
     if (!okEmail) { e.preventDefault(); email.focus(); return; }
     if (!okMessage) { e.preventDefault(); message.focus(); return; }
 
-    // disable submit while sending
+  // disable submit while sending
     e.preventDefault();
     submitBtn.disabled = true; submitBtn.setAttribute('aria-busy', 'true');
 
     // Attempt to send emails via SiteAPI (EmailJS). SiteAPI.sendContactEmails returns a Promise.
     if (window.SiteAPI && typeof window.SiteAPI.sendContactEmails === 'function') {
-      window.SiteAPI.sendContactEmails({ name: '', email: email.value.trim(), message: message.value.trim() })
-        .then(() => {
+  window.SiteAPI.sendContactEmails({ name: '', email: email.value.trim(), message: message.value.trim() })
+  .then(() => {
           if (confirmation) {
             confirmation.hidden = false;
             confirmation.style.opacity = '0';
@@ -376,10 +354,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
           }, 4000);
         })
-        .catch((err) => {
-          console.error('Send contact emails error:', err);
-          alert('Une erreur est survenue lors de l\'envoi du message. Veuillez réessayer.');
-        })
+        .catch((err) => { console.error('Send contact emails error:', err); alert('Une erreur est survenue lors de l\'envoi du message. Veuillez réessayer.'); })
         .finally(() => {
           submitBtn.disabled = false; submitBtn.removeAttribute('aria-busy'); updateSubmitState();
         });
@@ -405,28 +380,21 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 });
 
-/* Face ID intro: show overlay at load, then wait for user's hover to complete animation
-   Behavior: overlay visible on load (page blurred). When user mouseenters the face,
-   add 'active' and after 1700ms add 'completed' (then hide overlay). On mouseleave,
-   cancel pending timer and remove classes (animation won't complete).
-*/
+// FaceID overlay flow: show overlay at load, handle touch/hover activation and finish.
 document.addEventListener('DOMContentLoaded', () => {
   const overlay = document.querySelector('.faceid-overlay');
   const faceId = document.querySelector('.face-id-wrapper');
   if (!overlay || !faceId) return;
 
-  // show overlay and blur background until user completes the interaction
-  overlay.classList.remove('hidden');
-  document.body.classList.add('overlay-active');
+  // show overlay and blur background until interaction completes
+  overlay.classList.remove('hidden'); document.body.classList.add('overlay-active');
 
   let timer = null;
   const completeDelay = 1700; // ms
-  const dashDuration = 600; // ms (tick animation)
+  const dashDuration = 600; // ms
   const isTouchDevice = ('ontouchstart' in window) || (navigator.maxTouchPoints && navigator.maxTouchPoints > 0);
 
-  // On desktop we require at least one user click before hover will trigger the FaceID
-  // animation (prevents accidental hover activations). The first pointerdown anywhere
-  // on the page enables hover behavior.
+  // On desktop require a first pointerdown to enable hover-triggered FaceID.
   let hoverAllowed = true;
   if (!isTouchDevice) {
     hoverAllowed = false;
@@ -435,8 +403,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   if (isTouchDevice) {
-    // Mobile: simple tap to activate (single click/tap triggers the FaceID animation)
-    // Update hint text for touch devices
+  // Mobile: single tap activates FaceID. Update hint text for touch devices.
     try {
       const hint = document.querySelector('.faceid-hint');
       if (hint) {
@@ -450,34 +417,20 @@ document.addEventListener('DOMContentLoaded', () => {
     let triggered = false;
 
     function finishFlow() {
-      // play the FaceID sound shortly after the tick animation
-      try {
-        setTimeout(() => {
-          try {
-            if (__audioUnlocked) {
-              _playFaceIdSound();
-            } else {
-              __faceidSoundQueued = true;
-            }
-          } catch (err) { console.warn('Error playing FaceID sound', err); }
-        }, dashDuration + 2);
-      } catch (e) { /* ignore */ }
+      setTimeout(() => {
+        try {
+          if (__audioUnlocked) _playFaceIdSound(); else __faceidSoundQueued = true;
+        } catch (err) { console.warn('Error playing FaceID sound', err); }
+      }, dashDuration + 2);
 
-      // After the tick animation, fade out the overlay and finish the flow.
-      // Keep the .active/.completed classes until the overlay fade completes
-      // so the tick animation has time to play.
       setTimeout(() => {
         overlay.classList.add('fade-out');
         const onFadeEnd = (ev) => {
           if (ev.propertyName === 'opacity') {
-            overlay.classList.add('hidden');
-            overlay.classList.remove('fade-out');
-            document.body.classList.remove('overlay-active');
-            overlay.removeEventListener('transitionend', onFadeEnd);
+            overlay.classList.add('hidden'); overlay.classList.remove('fade-out');
+            document.body.classList.remove('overlay-active'); overlay.removeEventListener('transitionend', onFadeEnd);
             try {
-              // cleanup classes only after fade is done
-              faceId.classList.remove('active');
-              faceId.classList.remove('completed');
+              faceId.classList.remove('active'); faceId.classList.remove('completed');
               document.documentElement.classList.remove('animations-paused');
               document.dispatchEvent(new CustomEvent('faceid:done'));
             } catch (err) {}
@@ -503,41 +456,20 @@ document.addEventListener('DOMContentLoaded', () => {
       }, completeDelay);
     });
   } else {
-    // Desktop: hover behaviour guarded by first user click (hoverAllowed)
+    // Desktop: hover behaviour (enabled after first pointerdown)
     let desktopTimer = null;
     faceId.addEventListener('mouseenter', function () {
       if (!hoverAllowed) return;
-      faceId.classList.add('active');
-      // attempt to unlock audio on hover (may succeed if browser treats this as a gesture)
-      try { _unlockAudioOnce(); } catch (e) {}
+      faceId.classList.add('active'); try { _unlockAudioOnce(); } catch (e) {}
       desktopTimer = setTimeout(() => {
         faceId.classList.add('completed');
-
-        // play FaceID sound shortly after tick animation (match mobile timing)
-        try {
-          setTimeout(() => {
-            try {
-              if (__audioUnlocked) {
-                _playFaceIdSound();
-              } else {
-                __faceidSoundQueued = true;
-              }
-            } catch (err) { console.warn('Error playing FaceID sound', err); }
-          }, dashDuration + 2);
-        } catch (e) { /* ignore */ }
-
+        setTimeout(() => { try { if (__audioUnlocked) _playFaceIdSound(); else __faceidSoundQueued = true; } catch (err) { console.warn('Error playing FaceID sound', err); } }, dashDuration + 2);
         setTimeout(() => {
           overlay.classList.add('fade-out');
           const onFadeEnd = (e) => {
             if (e.propertyName === 'opacity') {
-              overlay.classList.add('hidden');
-              overlay.classList.remove('fade-out');
-              document.body.classList.remove('overlay-active');
-              overlay.removeEventListener('transitionend', onFadeEnd);
-              try {
-                document.documentElement.classList.remove('animations-paused');
-                document.dispatchEvent(new CustomEvent('faceid:done'));
-              } catch (err) {}
+              overlay.classList.add('hidden'); overlay.classList.remove('fade-out'); document.body.classList.remove('overlay-active'); overlay.removeEventListener('transitionend', onFadeEnd);
+              try { document.documentElement.classList.remove('animations-paused'); document.dispatchEvent(new CustomEvent('faceid:done')); } catch (err) {}
             }
           };
           overlay.addEventListener('transitionend', onFadeEnd);
@@ -551,7 +483,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // Generic safe mouseleave: cancel any pending timers
+  // Safe mouseleave: cancel pending timers
   faceId.addEventListener('mouseleave', function() {
     try { if (timer) { clearTimeout(timer); timer = null; } } catch (e) {}
     this.classList.remove('active');
@@ -559,8 +491,7 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 });
 
-/* Reveal-on-scroll: prepare elements now, but start observing only after FaceID
-   completes so the entrance animations won't run until the overlay is done. */
+// Reveal-on-scroll: prepare elements, observe after FaceID
 function initRevealOnScroll() {
   if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
 
@@ -598,16 +529,13 @@ function initRevealOnScroll() {
   nodes.forEach(n => observer.observe(n));
 }
 
-// Hero word popper: only run after FaceID
+// Hero word popper: run after FaceID
 function initHeroPopper() {
   const heading = document.querySelector('.hero-heading');
   const cta = document.querySelector('.contact-cta');
   if (!heading) return;
 
-  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-    if (cta) cta.classList.add('is-visible');
-    return;
-  }
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) { if (cta) cta.classList.add('is-visible'); return; }
 
   const originalNodes = Array.from(heading.childNodes);
   const wordSpans = [];
@@ -641,11 +569,9 @@ function initHeroPopper() {
   });
 
   if (cta && wordSpans.length) {
-  const total = wordSpans.length * perWordMs + Math.round(220 * __ANIM_SPEED_FACTOR);
+    const total = wordSpans.length * perWordMs + Math.round(220 * __ANIM_SPEED_FACTOR);
     setTimeout(() => { cta.classList.add('is-visible'); }, total);
-  } else if (cta) {
-    cta.classList.add('is-visible');
-  }
+  } else if (cta) cta.classList.add('is-visible');
 }
 
 // Start reveal and hero popper after FaceID or immediately if already done
@@ -654,11 +580,9 @@ runAfterFaceID(() => {
   initHeroPopper();
 });
 
-// Note: hero scroll hint removed — no smooth-scroll handlers required.
+// Note: hero scroll hint removed.
 
-// Custom smooth scroll for internal anchors to position the target heading
-// just below the fixed navbar so the title is visible while the section
-// content remains below the fold. This provides a consistent offset.
+// Custom smooth scroll to offset anchors under the fixed navbar
 document.addEventListener('DOMContentLoaded', () => {
   const nav = document.querySelector('.site-nav');
   const navHeight = nav ? nav.offsetHeight : 64;
@@ -683,9 +607,7 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 
-// Ensure links that navigate away from the current document open in a new tab.
-// - skip same-document anchors (hash), mailto: and tel: links.
-// - add target="_blank" and rel="noopener noreferrer" for safety.
+// Ensure external links open in a new tab; skip hashes, mailto:, tel:
 document.addEventListener('DOMContentLoaded', function () {
   try {
     const anchors = Array.from(document.querySelectorAll('a[href]'));
@@ -717,11 +639,7 @@ document.addEventListener('DOMContentLoaded', function () {
   } catch (e) { console.warn('error enforcing external links _blank', e); }
 });
 
-/* ------------------------------------------------------------------
-   OneSignal toggle integration
-   - Links the #emailToggle switch to the OneSignal SDK so users can
-     enable/disable push notifications via the UI.
- ------------------------------------------------------------------ */
+/* OneSignal toggle integration: tie #emailToggle to OneSignal SDK */
 (function () {
   const toggle = document.getElementById('emailToggle');
   if (!toggle) return;
@@ -733,7 +651,7 @@ document.addEventListener('DOMContentLoaded', function () {
     try { localStorage.setItem('email.notify', checked ? '1' : '0'); } catch (e) {}
   }
 
-  // Ensure callback runs when OneSignal is available. Supports OneSignal.push and OneSignalDeferred patterns.
+  // Call when OneSignal is available; supports push/deferred patterns.
   function whenOneSignalReady(cb) {
     if (window.OneSignal && typeof window.OneSignal.push === 'function') {
       window.OneSignal.push(() => cb(window.OneSignal));
@@ -743,7 +661,7 @@ document.addEventListener('DOMContentLoaded', function () {
     window.OneSignalDeferred.push(cb);
   }
 
-  // Initialize toggle state from OneSignal
+  // Initialize toggle state from OneSignal (or fallback to localStorage)
   whenOneSignalReady(async (OneSignal) => {
     try {
       const enabled = await OneSignal.isPushNotificationsEnabled();
@@ -786,7 +704,7 @@ document.addEventListener('DOMContentLoaded', function () {
 })();
 
 
-// PushAlert: execute the exact PushAlert IIFE only when the user enables the toggle
+// PushAlert: inject provider script only when user enables toggle
 document.addEventListener('DOMContentLoaded', function () {
   const toggle = document.getElementById('emailToggle');
   if (!toggle) return;
@@ -799,11 +717,11 @@ document.addEventListener('DOMContentLoaded', function () {
 
   toggle.addEventListener('change', function (e) {
     if (e.target.checked) {
-      // if already injected, do nothing
+  // if already injected, do nothing
       if (document.getElementById('pushalert-exec')) return;
 
       // create a script element whose content is the exact IIFE from your snippet
-      const s = document.createElement('script');
+  const s = document.createElement('script');
       s.id = 'pushalert-exec';
       s.type = 'text/javascript';
       s.text = `(function(d, t) {
@@ -827,7 +745,7 @@ document.addEventListener('DOMContentLoaded', function () {
   });
 });
 
-// Mobile nav toggle: open/close the slide-in sidebar on small screens
+// Mobile nav toggle: open/close the slide-in sidebar
 document.addEventListener('DOMContentLoaded', function () {
   var toggle = document.getElementById('mobileNavToggle');
   var sidebar = document.getElementById('mobileSidebar');
@@ -840,7 +758,7 @@ document.addEventListener('DOMContentLoaded', function () {
     backdrop.classList.add('open');
     backdrop.hidden = false;
     toggle.setAttribute('aria-expanded', 'true');
-    // lock scroll
+  // lock scroll
     document.documentElement.style.overflow = 'hidden';
     // move focus into sidebar
     var firstLink = sidebar.querySelector('a'); if (firstLink) firstLink.focus();

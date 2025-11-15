@@ -11,17 +11,17 @@
     <meta property="og:image" content="public/images/Capture d’écran 2025-11-14 à 22.09.52.png" />
     <meta property="og:type" content="website" />
     <meta name="twitter:card" content="summary_large_image" />
-  <!-- Favicon / touch icons -->
-  <link rel="icon" type="image/png" sizes="32x32" href="/public/images/Icon-iOS-Dark-1024x1024@1x.png">
-  <link rel="icon" type="image/png" sizes="16x16" href="/public/images/Icon-iOS-Dark-1024x1024@1x.png">
-  <link rel="apple-touch-icon" href="/public/images/Icon-iOS-Dark-1024x1024@1x.png">
+  <!-- Favicon -->
+  <link rel="icon" type="image/png" sizes="32x32" href="/public/favicon/Icon-iOS-Dark-1024x1024@1x.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/public/favicon/Icon-iOS-Dark-1024x1024@1x.png">
+  <link rel="apple-touch-icon" href="/public/favicon/Icon-iOS-Dark-1024x1024@1x.png">
   <meta name="theme-color" content="#000000" />
   <link href="./src/css/style.css" rel="stylesheet">
   <!-- GitHub calendar responsive CSS -->
   <link rel="stylesheet" href="https://unpkg.com/github-calendar@latest/dist/github-calendar-responsive.css">
   </head>
   <body>
-    <!-- Top navigation (inspired by attachment) -->
+    <!-- Top navigation -->
     <nav class="site-nav" role="navigation" aria-label="Navigation principale">
       <div class="nav-inner">
         <div class="nav-left">
@@ -37,14 +37,14 @@
           <a class="nav-cta" href="public/docs/nathan-cv.pdf" target="_blank" rel="noopener" title="Lire mon CV">Lire mon CV</a>
           <a class="nav-bubble" href="#contact" title="On discute ?">Hey ! On discute ?</a>
         </div>
-        <!-- Mobile kebab toggle: shown only on small screens -->
+        <!-- Mobile kebab toggle -->
         <button id="mobileNavToggle" class="mobile-nav-toggle" aria-label="Ouvrir le menu" aria-expanded="false">
           <img src="public/icons/kebab-horizontal-16.svg" alt="menu">
         </button>
       </div>
     </nav>
 
-    <!-- Mobile slide-in sidebar (links as text) -->
+    <!-- Mobile sidebar -->
     <div class="mobile-nav-backdrop" id="mobileNavBackdrop" hidden></div>
     <aside class="mobile-sidebar" id="mobileSidebar" aria-hidden="true">
       <nav aria-label="Navigation mobile">
@@ -75,8 +75,7 @@
           <svg version="1.1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 80 80">
             <path class="path-tick" stroke="#FFF" stroke-width="5" fill="none" stroke-linecap="butt" stroke-linejoin="butt" d="M 25,45 35,55 60,30"/>
           </svg>
-  <!-- Hint: shown under the FaceID animation. We reuse reveal-on-scroll and
-         set a custom reveal delay via CSS variable so it fades in after 1.5s. -->
+  
   <div class="faceid-hint reveal-on-scroll" data-delay aria-hidden="true" style="--reveal-delay:1.5s">Cliquer puis survolez avec la souris pour activer</div>
         </div>
       </div>
@@ -94,7 +93,7 @@
       </div>
     </main>
 
-    <!-- Intro summary section: left text / right video -->
+    <!-- Intro summary -->
     <section class="intro-summary" aria-labelledby="intro-heading">
       <div class="intro-inner">
         <div class="intro-left">
@@ -115,7 +114,7 @@
       </div>
     </section>
 
-    <!-- Formation / Education section -->
+    <!-- Formation / Education -->
     <section class="formation-section" aria-labelledby="formation-heading">
       <div class="formation-inner">
   <h2 id="formation-heading"><img class="formation-h2-icon" src="public/icons/mortar-board-16.svg" alt="" aria-hidden="true"> Formation</h2>
@@ -144,7 +143,7 @@
       </div>
     </section>
 
-    <!-- Expérience section -->
+    <!-- Expérience -->
     <section class="experience-section" aria-labelledby="experience-heading">
       <div class="experience-inner">
         <h2 id="experience-heading"><img class="experience-h2-icon" src="public/icons/organization-16.svg" alt="" aria-hidden="true"> Expérience</h2>
@@ -214,7 +213,7 @@
         <h2 id="projects-heading"><img class="projects-h2-icon" src="public/icons/repo-16.svg" alt="" aria-hidden="true"> Projets</h2>
 
         <div class="projects-grid">
-          <!-- Project 1: Screenfix -->
+          <!-- Project 1 -->
           <article class="project-card">
             <div class="project-media">
               <img src="public/images/Capture d’écran 2025-11-13 à 07.23.44.png" alt="Screenfix - site vitrine">
@@ -262,7 +261,7 @@
       </div>
     </section>
 
-    <!-- Contributions GitHub section -->
+    <!-- Contributions GitHub -->
     <section class="contributions-section" aria-labelledby="contrib-heading">
       <div class="contributions-inner">
         <h2 id="contrib-heading"><img class="experience-h2-icon" src="public/icons/git-commit-16.svg" alt="GitHub" aria-hidden="true"> Contributions GitHub</h2>
@@ -280,7 +279,7 @@
       </div>
     </section>
 
-    <!-- Carousel sections: Outils & Compétences -->
+    <!--Outils & Compétences -->
     <section class="carousel-section" aria-labelledby="tools-heading">
       <div class="carousel-inner">
         <h2 id="tools-heading"><img class="experience-h2-icon" src="public/icons/package-16.svg" alt="" aria-hidden="true"> Outils de développement</h2>
@@ -298,7 +297,8 @@
             <div class="slide"><img src="public/images/NPM.svg" alt="npm"></div>
             <div class="slide"><img src="public/images/Android Studio.svg" alt="Webpack"></div>
             <div class="slide"><img src="public/images/Visual Studio Code (VS Code).svg" alt="vscode"></div>
-            <!-- duplicated for seamless loop -->
+            
+
             <div class="slide"><img src="public/images/figma.svg" alt="Figma"></div>
             <div class="slide"><img src="public/images/git.svg" alt="Git"></div>
             <div class="slide"><img src="public/images/docker.png" alt="Docker"></div>
@@ -344,7 +344,6 @@
 
 
 
-            <!-- duplicated for seamless loop -->
             <div class="slide"><img src="public/images/html5-original-wordmark.svg" alt="HTML5"></div>
             <div class="slide"><img src="public/images/css3-original-wordmark.svg" alt="CSS3"></div>
             <div class="slide"> <img src="public/images/JavaScript.svg" alt="JavaScript"></div>
@@ -365,7 +364,7 @@
       </div>
     </section>
 
-    <!-- Contacts section (form) inserted after Compétences) -->
+    <!-- Contacts -->
     <section id="contact" class="contacts-section" aria-labelledby="contacts-heading">
       <div class="contacts-inner">
         <h2 id="contacts-heading">Contactons-nous !</h2>
@@ -421,31 +420,29 @@
         </div>
       </footer>
     </main>
-    <!-- OneSignal removed: push notifications disabled -->
     <!-- GitHub calendar script -->
     <script src="https://unpkg.com/github-calendar@latest/dist/github-calendar.min.js"></script>
     <script>
       document.addEventListener('DOMContentLoaded', function () {
-        // initialize the calendar for the user Squid-Nayth
+        // initialize the calendar for Squid-Nayth
         if (typeof GitHubCalendar === 'function') {
           GitHubCalendar('.calendar', 'Squid-Nayth', { responsive: true });
         }
       });
     </script>
-    <!-- EmailJS SDK (client-side email sending) -->
+    <!-- EmailJS SDK -->
     <script src="https://cdn.emailjs.com/sdk/3.2.0/email.min.js"></script>
     <script>
-      // Initialise EmailJS with your public key (replace placeholder)
+      // Initialise EmailJS
       if (window.emailjs) {
         try { emailjs.init('J-R25uVYKuSZlk0kL'); } catch (e) { /* ignore */ }
       }
     </script>
-    <!-- site API (handles sending emails via EmailJS) -->
+    <!-- API -->
     <script src="src/js/api.js" defer></script>
     <script src="src/js/script.js" defer></script>
   <script src="src/js/particles.js" defer></script>
     <script>
-      // Trigger the reveal-on-scroll style for the FaceID hint 1.5s after load
       document.addEventListener('DOMContentLoaded', function () {
         try {
           var overlay = document.querySelector('.faceid-overlay');
