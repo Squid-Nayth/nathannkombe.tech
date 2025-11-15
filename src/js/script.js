@@ -17,6 +17,7 @@ const __ANIM_SPEED_FACTOR = 1.3;
 // blocked by autoplay policies.
 let __audioUnlocked = false;
 let __faceidSoundQueued = false;
+let __userInteracted = false; // becomes true after first real user gesture (pointerdown/touchstart/keydown)
 const __faceidSoundSrc = 'public/sounds/apple-pay.mp3';
 // Notification sound for successful contact form send
 const __notifySoundSrc = 'public/sounds/IPHONE NOTIFICATION SOUND EFFECT (PING_DING).mp3';
@@ -71,11 +72,20 @@ function _playFaceIdSound() {
   try {
     const audio = new Audio(__faceidSoundSrc);
     audio.volume = 0.9;
-    audio.play().catch((err) => {
-      console.warn('Unable to play FaceID sound:', err);
-      // If playback is blocked, queue it for the next user gesture
+    try { window.__lastFaceIdAudio = audio; } catch (e) { /* ignore */ }
+    // Do not attempt to play until the user has interacted with the document.
+    if (!__userInteracted) {
       __faceidSoundQueued = true;
-    });
+      return audio;
+    }
+    const p = audio.play();
+    if (p && typeof p.catch === 'function') {
+      p.catch((err) => {
+        console.warn('Unable to play FaceID sound:', err);
+        __faceidSoundQueued = true;
+      });
+    }
+    return audio;
   } catch (e) {
     console.warn('FaceID sound error', e);
   }
@@ -105,16 +115,86 @@ function _unlockAudioOnce() {
   }
 }
 
+// Background music: looped track that should start after FaceID + apple-pay
+const __bgMusicSrc = encodeURI('public/sounds/Yi Nantiro - Blue Lantern (Royalty Free Music).mp3');
+let __bgAudio = null;
+let __bgMusicQueued = false;
+function _createBgAudio() {
+  if (__bgAudio) return __bgAudio;
+  try {
+    __bgAudio = new Audio(__bgMusicSrc);
+    __bgAudio.preload = 'auto';
+    __bgAudio.loop = true;
+    __bgAudio.volume = 0.28;
+    try { __bgAudio.load(); } catch (e) {}
+  } catch (e) {
+    console.warn('Unable to create background audio', e);
+  }
+  return __bgAudio;
+}
+
+function _startBackgroundMusic() {
+  const bg = _createBgAudio();
+  if (!bg) return;
+  if (__audioUnlocked) {
+    const p = bg.play();
+    if (p && typeof p.catch === 'function') {
+      p.catch((err) => {
+        console.warn('Background music play blocked:', err);
+        __bgMusicQueued = true;
+      });
+    }
+  } else {
+    __bgMusicQueued = true;
+  }
+}
+
+// When FaceID finishes, start background music after the face-id audio ends
+document.addEventListener('faceid:done', function () {
+  try {
+    const startIfReady = function () { try { _startBackgroundMusic(); } catch (e) {} };
+    const last = window.__lastFaceIdAudio;
+    if (last && typeof last.addEventListener === 'function') {
+      if (last.ended) {
+        startIfReady();
+      } else {
+        last.addEventListener('ended', startIfReady, { once: true });
+        // fallback: start after 8s if ended never fires
+        setTimeout(startIfReady, 8000);
+      }
+    } else {
+      startIfReady();
+    }
+  } catch (e) { console.warn('Error starting background music after faceid', e); }
+});
+
+// Flush queued audio when unlock occurs
+function _flushQueuedAudio() {
+  try {
+    if (__faceidSoundQueued) { __faceidSoundQueued = false; _playFaceIdSound(); }
+    if (__bgMusicQueued) { __bgMusicQueued = false; _startBackgroundMusic(); }
+  } catch (e) { /* ignore */ }
+}
+
+const _origUnlock = _unlockAudioOnce;
+_unlockAudioOnce = function () { _origUnlock(); _flushQueuedAudio(); };
+
 // Attach gesture listeners as a fallback to unlock audio on first real user
 // interaction (pointerdown/touchstart/keydown). We also call _unlockAudioOnce
 // directly from the FaceID mouseenter handler (below) because that event is
 // already a user gesture.
 function _attachAudioUnlockListeners() {
-  function handler() { try { _unlockAudioOnce(); } finally {
+  function handler() {
+    try {
+      __userInteracted = true;
+      try { _unlockAudioOnce(); } catch (e) {}
+      try { _flushQueuedAudio(); } catch (e) {}
+    } finally {
       document.removeEventListener('pointerdown', handler);
       document.removeEventListener('touchstart', handler);
       document.removeEventListener('keydown', handler);
-    }}
+    }
+  }
   document.addEventListener('pointerdown', handler, { once: true });
   document.addEventListener('touchstart', handler, { once: true });
   document.addEventListener('keydown', handler, { once: true });
@@ -203,43 +283,90 @@ document.addEventListener('DOMContentLoaded', () => {
   if (!form) return;
 
   const confirmation = document.querySelector('.contact-confirmation');
+  const email = form.querySelector('input[name="email"]');
+  const message = form.querySelector('textarea[name="message"]');
+  const submitBtn = form.querySelector('.btn-send');
+  if (!email || !message || !submitBtn) return;
+
+  // Track whether a field was touched (blur) so we only show native bubbles after blur/submit
+  let touchedEmail = false;
+  let touchedMessage = false;
+
+  // Utility: update submit button enabled state based on validity
+  function updateSubmitState() {
+    const okEmail = email.value.trim() !== '' && email.value.includes('@');
+    const okMessage = message.value.trim() !== '';
+    const enabled = okEmail && okMessage;
+    submitBtn.disabled = !enabled;
+    submitBtn.setAttribute('aria-disabled', String(!enabled));
+  }
+
+  // Per-field validation using native setCustomValidity + reportValidity when requested
+  function validateEmail(showBubble) {
+    const val = email.value.trim();
+    if (val === '') {
+      email.setCustomValidity('Veuillez indiquer votre adresse email');
+      if (showBubble) email.reportValidity();
+      return false;
+    }
+    if (!val.includes('@')) {
+      email.setCustomValidity('Adresse email invalide');
+      if (showBubble) email.reportValidity();
+      return false;
+    }
+    email.setCustomValidity('');
+    return true;
+  }
+
+  function validateMessage(showBubble) {
+    const val = message.value.trim();
+    if (val === '') {
+      message.setCustomValidity('Veuillez saisir un message');
+      if (showBubble) message.reportValidity();
+      return false;
+    }
+    message.setCustomValidity('');
+    return true;
+  }
+
+  // Wire events: input -> live state update (no bubbles), blur -> validate + show bubble if invalid
+  email.addEventListener('input', function () { validateEmail(false); updateSubmitState(); });
+  message.addEventListener('input', function () { validateMessage(false); updateSubmitState(); });
+
+  email.addEventListener('blur', function () { touchedEmail = true; validateEmail(true); updateSubmitState(); });
+  message.addEventListener('blur', function () { touchedMessage = true; validateMessage(true); updateSubmitState(); });
+
+  // Initialize button state
+  updateSubmitState();
 
   form.addEventListener('submit', (e) => {
-    e.preventDefault();
-
-    // Simple client-side validation
-    const email = form.querySelector('input[name="email"]');
-    const message = form.querySelector('textarea[name="message"]');
-    const submitBtn = form.querySelector('.btn-send');
-    if (!email || !message) return;
-    if (!email.value.trim() || !message.value.trim()) {
-      // focus the first empty field
-      if (!email.value.trim()) email.focus(); else message.focus();
-      return;
-    }
+    // On submit, show browser bubbles for any invalid fields
+    const okEmail = validateEmail(true);
+    const okMessage = validateMessage(true);
+    updateSubmitState();
+    if (!okEmail) { e.preventDefault(); email.focus(); return; }
+    if (!okMessage) { e.preventDefault(); message.focus(); return; }
 
     // disable submit while sending
-    if (submitBtn) { submitBtn.disabled = true; submitBtn.setAttribute('aria-busy', 'true'); }
+    e.preventDefault();
+    submitBtn.disabled = true; submitBtn.setAttribute('aria-busy', 'true');
 
     // Attempt to send emails via SiteAPI (EmailJS). SiteAPI.sendContactEmails returns a Promise.
     if (window.SiteAPI && typeof window.SiteAPI.sendContactEmails === 'function') {
       window.SiteAPI.sendContactEmails({ name: '', email: email.value.trim(), message: message.value.trim() })
         .then(() => {
-          // show confirmation
           if (confirmation) {
             confirmation.hidden = false;
             confirmation.style.opacity = '0';
             requestAnimationFrame(() => {
-              confirmation.style.transition = 'opacity .28s ease';
-              confirmation.style.opacity = '1';
+              confirmation.style.transition = 'opacity .28s ease'; confirmation.style.opacity = '1';
               try { _playNotifySound(); } catch (e) { /* ignore */ }
             });
           }
-
-          // reset form after successful send
           form.reset();
-
-          // hide confirmation after 4s
+          // reset touched flags and validity
+          touchedEmail = false; touchedMessage = false; email.setCustomValidity(''); message.setCustomValidity('');
+          updateSubmitState();
           setTimeout(() => {
             if (confirmation) {
               confirmation.style.opacity = '0';
@@ -254,16 +381,17 @@ document.addEventListener('DOMContentLoaded', () => {
           alert('Une erreur est survenue lors de l\'envoi du message. Veuillez réessayer.');
         })
         .finally(() => {
-          if (submitBtn) { submitBtn.disabled = false; submitBtn.removeAttribute('aria-busy'); }
+          submitBtn.disabled = false; submitBtn.removeAttribute('aria-busy'); updateSubmitState();
         });
     } else {
-      // fallback: if SiteAPI not available, show confirmation and reset (best-effort)
+      // fallback: show confirmation and reset
       if (confirmation) {
-        confirmation.hidden = false;
-        confirmation.style.opacity = '0';
+        confirmation.hidden = false; confirmation.style.opacity = '0';
         requestAnimationFrame(() => { confirmation.style.transition = 'opacity .28s ease'; confirmation.style.opacity = '1'; });
       }
       form.reset();
+      touchedEmail = false; touchedMessage = false; email.setCustomValidity(''); message.setCustomValidity('');
+      updateSubmitState();
       setTimeout(() => {
         if (confirmation) {
           confirmation.style.opacity = '0';
@@ -272,7 +400,7 @@ document.addEventListener('DOMContentLoaded', () => {
           });
         }
       }, 4000);
-      if (submitBtn) { submitBtn.disabled = false; submitBtn.removeAttribute('aria-busy'); }
+      submitBtn.disabled = false; submitBtn.removeAttribute('aria-busy');
     }
   });
 });
@@ -296,34 +424,48 @@ document.addEventListener('DOMContentLoaded', () => {
   const dashDuration = 600; // ms (tick animation)
   const isTouchDevice = ('ontouchstart' in window) || (navigator.maxTouchPoints && navigator.maxTouchPoints > 0);
 
-  if (isTouchDevice) {
-    // Mobile: use pointer events for robust press-and-hold detection (pointerdown -> pointerup).
-    let holdTimer = null;
-    let activePointerId = null;
+  // On desktop we require at least one user click before hover will trigger the FaceID
+  // animation (prevents accidental hover activations). The first pointerdown anywhere
+  // on the page enables hover behavior.
+  let hoverAllowed = true;
+  if (!isTouchDevice) {
+    hoverAllowed = false;
+    const enableHover = function () { hoverAllowed = true; try { document.removeEventListener('pointerdown', enableHover); } catch (e) {} };
+    document.addEventListener('pointerdown', enableHover, { once: true });
+  }
 
-    function cancelHold() {
-      if (holdTimer) { clearTimeout(holdTimer); holdTimer = null; }
-      faceId.classList.remove('active');
-      faceId.classList.remove('completed');
-      activePointerId = null;
-    }
+  if (isTouchDevice) {
+    // Mobile: simple tap to activate (single click/tap triggers the FaceID animation)
+    // Update hint text for touch devices
+    try {
+      const hint = document.querySelector('.faceid-hint');
+      if (hint) {
+        hint.textContent = 'Toucher pour activer';
+        // Make sure the hint is visually revealed on touch devices
+        hint.classList.add('is-visible');
+        hint.setAttribute('aria-hidden', 'false');
+      }
+    } catch (e) { /* ignore */ }
+
+    let triggered = false;
 
     function finishFlow() {
-      // play the FaceID sound immediately after the tick animation finishes (+2ms)
+      // play the FaceID sound shortly after the tick animation
       try {
         setTimeout(() => {
           try {
             if (__audioUnlocked) {
               _playFaceIdSound();
             } else {
-              // if not unlocked yet, queue for next gesture
               __faceidSoundQueued = true;
             }
           } catch (err) { console.warn('Error playing FaceID sound', err); }
         }, dashDuration + 2);
       } catch (e) { /* ignore */ }
 
-      // After the tick animation, wait a bit then fade out the overlay and finish the flow
+      // After the tick animation, fade out the overlay and finish the flow.
+      // Keep the .active/.completed classes until the overlay fade completes
+      // so the tick animation has time to play.
       setTimeout(() => {
         overlay.classList.add('fade-out');
         const onFadeEnd = (ev) => {
@@ -333,6 +475,9 @@ document.addEventListener('DOMContentLoaded', () => {
             document.body.classList.remove('overlay-active');
             overlay.removeEventListener('transitionend', onFadeEnd);
             try {
+              // cleanup classes only after fade is done
+              faceId.classList.remove('active');
+              faceId.classList.remove('completed');
               document.documentElement.classList.remove('animations-paused');
               document.dispatchEvent(new CustomEvent('faceid:done'));
             } catch (err) {}
@@ -340,47 +485,47 @@ document.addEventListener('DOMContentLoaded', () => {
         };
         overlay.addEventListener('transitionend', onFadeEnd);
       }, dashDuration + 80);
-
-      // cleanup classes
-      faceId.classList.remove('active');
-      faceId.classList.remove('completed');
     }
 
-    function startHold(pointerId) {
-      activePointerId = pointerId;
+    faceId.addEventListener('pointerdown', function (e) {
+      if (triggered) return;
+      triggered = true;
+      try { e.preventDefault(); } catch (err) {}
       faceId.classList.add('active');
       try { _unlockAudioOnce(); } catch (e) {}
-      holdTimer = setTimeout(() => {
-        // mark completed (trigger tick animation)
+
+      // Match desktop timing: wait `completeDelay` before marking completed
+      // so the tick animation and pacing match the desktop experience.
+      setTimeout(() => {
         faceId.classList.add('completed');
-        // then run the finish flow which plays sound and fades overlay
+        // then finish the flow (plays sound + fades overlay)
         finishFlow();
       }, completeDelay);
-    }
-
-    function onPointerDown(e) {
-      // Only start if the target is the faceId element (or its children)
-      // prevent default to avoid weird scroll/gesture interactions
-      try { e.preventDefault(); } catch (err) {}
-      startHold(e.pointerId);
-    }
-
-    function onPointerUp(e) {
-      if (activePointerId === null) return;
-      if (e.pointerId === activePointerId) cancelHold();
-    }
-
-    faceId.addEventListener('pointerdown', onPointerDown);
-    // listen on the document to catch pointerup even if the pointer leaves the element
-    document.addEventListener('pointerup', onPointerUp);
-    document.addEventListener('pointercancel', onPointerUp);
+    });
   } else {
-    // Desktop: preserve hover behaviour, no audio
+    // Desktop: hover behaviour guarded by first user click (hoverAllowed)
     let desktopTimer = null;
     faceId.addEventListener('mouseenter', function () {
+      if (!hoverAllowed) return;
       faceId.classList.add('active');
+      // attempt to unlock audio on hover (may succeed if browser treats this as a gesture)
+      try { _unlockAudioOnce(); } catch (e) {}
       desktopTimer = setTimeout(() => {
         faceId.classList.add('completed');
+
+        // play FaceID sound shortly after tick animation (match mobile timing)
+        try {
+          setTimeout(() => {
+            try {
+              if (__audioUnlocked) {
+                _playFaceIdSound();
+              } else {
+                __faceidSoundQueued = true;
+              }
+            } catch (err) { console.warn('Error playing FaceID sound', err); }
+          }, dashDuration + 2);
+        } catch (e) { /* ignore */ }
+
         setTimeout(() => {
           overlay.classList.add('fade-out');
           const onFadeEnd = (e) => {
@@ -406,9 +551,9 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
+  // Generic safe mouseleave: cancel any pending timers
   faceId.addEventListener('mouseleave', function() {
-    // cancel completion if user leaves early
-    if (timer) { clearTimeout(timer); timer = null; }
+    try { if (timer) { clearTimeout(timer); timer = null; } } catch (e) {}
     this.classList.remove('active');
     this.classList.remove('completed');
   });
@@ -419,10 +564,10 @@ document.addEventListener('DOMContentLoaded', () => {
 function initRevealOnScroll() {
   if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
 
-  const selectors = [
+    const selectors = [
     'section',
     '.project-card',
-    '.experience-item',
+    '.experience-item:not(.no-reveal)',
     '.carousel-section',
     '.github-calendar-card',
     '.intro-left',
@@ -537,6 +682,40 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 });
 
+
+// Ensure links that navigate away from the current document open in a new tab.
+// - skip same-document anchors (hash), mailto: and tel: links.
+// - add target="_blank" and rel="noopener noreferrer" for safety.
+document.addEventListener('DOMContentLoaded', function () {
+  try {
+    const anchors = Array.from(document.querySelectorAll('a[href]'));
+    anchors.forEach(a => {
+      try {
+        const href = a.getAttribute('href');
+        if (!href) return;
+        const lower = href.toLowerCase();
+        if (lower.startsWith('#')) return; // same-document anchor
+        if (lower.startsWith('mailto:') || lower.startsWith('tel:')) return; // skip protocol links
+
+        // Resolve URL relative to current location
+        let url;
+        try { url = new URL(href, location.href); } catch (e) { return; }
+
+        // If it's the same origin and same pathname (only hash differs) -> treat as internal
+        if (url.origin === location.origin && url.pathname === location.pathname) return;
+
+        // Force open in new tab
+        a.setAttribute('target', '_blank');
+
+        // Ensure rel includes noopener and noreferrer for security
+        const rel = (a.getAttribute('rel') || '').split(/\s+/).filter(Boolean);
+        if (!rel.includes('noopener')) rel.push('noopener');
+        if (!rel.includes('noreferrer')) rel.push('noreferrer');
+        a.setAttribute('rel', rel.join(' '));
+      } catch (e) { /* ignore per-link errors */ }
+    });
+  } catch (e) { console.warn('error enforcing external links _blank', e); }
+});
 
 /* ------------------------------------------------------------------
    OneSignal toggle integration

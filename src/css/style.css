@@ -7,21 +7,34 @@
 html,
 body {
   height: 100%;
+  /* Strong fallback background to avoid white flash when overscrolling */
+  background-color: #000;
+  /* Prevent scroll chaining / overscroll bounce where supported */
+  overscroll-behavior: none;
 }
 /* Ensure the document root has the same dark background so overscroll
    (rubber-banding) doesn't reveal a white page beneath. */
 html{
+  /* Ensure the root has a matching background so any overscroll reveals
+     the same dark color instead of white. The gradient is the visual
+     design, `background-color` is the fallback to prevent white edges. */
+  background-color: #000;
   background: linear-gradient(180deg, #050505 0%, #0b0b0b 100%);
+  overscroll-behavior: none;
 }
 body {
+  /* Keep the same gradient visual but strongly prefer a solid black
+    fallback to ensure no white is visible during overscroll. */
+  background-color: #000;
   background: linear-gradient(180deg, #050505 0%, #0b0b0b 100%);
   color: #fff;
 
   /* Ensure body fills viewport and the background is fixed so overscroll
-     doesn't reveal any underlying white area. */
+    (rubber-banding) doesn't reveal a white page beneath. */
   min-height: 100vh;
   background-attachment: fixed;
-  overscroll-behavior-y: contain; /* prevents propagation of bounce to the viewport */
+  /* Disable overscroll behavior (where supported) to avoid bounce/white edges */
+  overscroll-behavior: none;
   font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
   line-height: 1.4;
 }
@@ -549,6 +562,23 @@ body.overlay-active footer{
   }
 }
 
+/* Disable horizontal translation for items that explicitly opt-out by
+   adding the `no-reveal` class. Keep the pseudo-highlight (::after) and
+   shadows but prevent the translateX shift on hover/focus. */
+.experience-list .experience-item.no-reveal:hover,
+.experience-list .experience-item.no-reveal:focus-within {
+  transform: none !important;
+  /* keep hover/focus shadow to preserve visual feedback */
+  box-shadow: 0 14px 40px rgba(2,6,23,0.6), 0 8px 28px rgba(10,170,247,0.04);
+}
+
+@media (max-width:720px) {
+  .experience-list .experience-item.no-reveal:hover,
+  .experience-list .experience-item.no-reveal:focus-within {
+    transform: none !important;
+  }
+}
+
 /* ---------- Contributions (GitHub calendar) ---------- */
 .contributions-section{padding:3.5rem 1rem;background:transparent}
 .contributions-inner{max-width:1100px;margin:0 auto;text-align:center}
@@ -557,7 +587,8 @@ body.overlay-active footer{
 .github-calendar-card{background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));padding:1.6rem;border-radius:12px;box-shadow:0 10px 30px rgba(0,0,0,0.6);border:1px solid rgba(255,255,255,0.03);display:flex;flex-direction:column;align-items:center;gap:1rem}
 .github-calendar-card .calendar{width:100%;max-width:1000px}
 .contrib-legend{color:#9ca3af;margin-top:6px;font-weight:500}
-.github-cta{display:inline-flex;align-items:center;gap:0.6rem;margin-top:0.9rem;padding:0.75rem 1.15rem;background:#10b981;color:#021; border-radius:10px;text-decoration:none;font-weight:700;box-shadow:0 8px 22px rgba(16,185,129,0.12)}
+.github-cta{display:inline-flex;align-items:center;gap:0.6rem;margin-top:0.9rem;padding:0.75rem 1.15rem;background: rgba(12,14,16,0.6); color:#fff; text-decoration:none; border:1px solid rgba(255,255,255,0.06); border-radius:10px; font-weight:700; box-shadow: inset 0 1px 0 rgba(255,255,255,0.02), 0 8px 22px rgba(2,6,23,0.6); position:relative; z-index:2}
+.github-cta::before{content:"";position:absolute;z-index:-1;left:50%;top:50%;transform:translate(-50%,-50%);width:220px;height:64px;background:radial-gradient(circle at center, rgba(255,255,255,0.06) 0%, rgba(255,255,255,0.03) 22%, rgba(0,0,0,0) 45%);filter:blur(16px) saturate(1.05);border-radius:10px;pointer-events:none;opacity:0.95}
 .github-cta img{filter:invert(1);width:20px;height:20px}
 .github-cta:hover{filter:brightness(0.95)}
 
@@ -643,6 +674,10 @@ body.overlay-active footer{
 .project-cta:active{transform:translateY(-1px)}
 .project-cta:focus{outline:2px solid rgba(255,255,255,0.06);outline-offset:3px}
 
+/* Blooming halo behind project CTAs to match contact-cta/github-cta */
+.project-cta{position:relative;z-index:2}
+.project-cta::before{content:"";position:absolute;z-index:-1;left:50%;top:50%;transform:translate(-50%,-50%);width:180px;height:48px;background:radial-gradient(circle at center, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.02) 22%, rgba(0,0,0,0) 45%);filter:blur(14px) saturate(1.05);border-radius:8px;pointer-events:none;opacity:0.92}
+
 /* Slightly different filled style for primary project action if needed */
 .project-cta.primary{background:linear-gradient(90deg,#06b6d4,#7c3aed);color:#fff;border:none}
 
@@ -693,6 +728,18 @@ button:not(.contact-cta):hover,
   filter:brightness(1.01);
 }
 .btn-send:active{transform:translateY(-1px)}
+
+/* Disabled state: visually grayed out and non-interactive */
+.btn-send[disabled], .btn-send[aria-disabled="true"] {
+  opacity: 0.45;
+  filter: none;
+  box-shadow: none;
+  cursor: not-allowed;
+  transform: none !important;
+  pointer-events: none;
+}
+.btn-send[disabled] img, .btn-send[aria-disabled="true"] img { filter: none; opacity: 0.65 }
+.btn-send[disabled]:hover, .btn-send[aria-disabled="true"]:hover { transform: none; box-shadow: none; }
 
 .contact-confirmation{margin-top:1rem;padding:0.9rem 1rem;background:linear-gradient(180deg, rgba(16,185,129,0.12), rgba(16,185,129,0.06));border:1px solid rgba(16,185,129,0.14);color:#c7f6e5;border-radius:8px;font-weight:700;display:inline-block}
 .contact-confirmation[hidden]{display:none}
@@ -781,22 +828,6 @@ button:not(.contact-cta):hover,
   gap: 1rem;
   margin-bottom: 1.5rem;
 }
-.btn {
-  display: inline-block;
-  padding: 0.7rem 1.1rem;
-  border-radius: 0.6rem;
-  background: transparent;
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  color: inherit;
-  text-decoration: none;
-}
-.btn.primary {
-  background: linear-gradient(90deg, #06b6d4, #7c3aed);
-  color: #fff;
-  border: none;
-  box-shadow: 0 6px 18px rgba(124, 58, 237, 0.18);
-}
-
 .profile-skills h3 {
   margin-bottom: 0.6rem;
 }
@@ -838,6 +869,11 @@ button:not(.contact-cta):hover,
 .big-switch input:checked + .slider::before{transform:translateX(40px)}
 
 .contact-bottom{margin-top:3.5rem}
+.contact-bottom{display:flex;align-items:center;justify-content:space-between;gap:1rem}
+.footer-legal{margin-left:auto;display:flex;align-items:center;font-family:inherit;font-size:inherit}
+.footer-legal .contact-link{margin-left:0}
+/* Make the legal link match the muted color used by other footer links */
+.footer-legal{color:#9ca3af}
 .contact-line{display:flex;flex-wrap:wrap;align-items:center;gap:1rem;color:#9ca3af}
 .contact-name{color:#d1d5db}
 .contact-email{color:inherit;text-decoration:underline dotted rgba(255,255,255,0.12);padding-left:4px}
@@ -849,6 +885,10 @@ button:not(.contact-cta):hover,
   .big-switch .slider::before{height:36px;width:36px;left:4px;bottom:4px}
   .big-switch input:checked + .slider::before{transform:translateX(28px)}
   .contact-title{font-size:1.4rem}
+}
+@media (max-width:720px){
+  .contact-bottom{flex-direction:column;align-items:flex-start}
+  .footer-legal{margin-left:0;margin-top:0.75rem}
 }
 
 /* Toggle switch styles (container + switch) */
